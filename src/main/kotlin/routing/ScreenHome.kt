@@ -1,0 +1,111 @@
+package routing
+
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import components.CustomScaffold
+import components.rememberCustomOCState
+import core.db.CoreDB
+import core.db.models.ModelAudio
+import core.db.models.ModelFolder
+import kotlinx.coroutines.launch
+import routing.sections.Appbar
+import routing.sections.CompactPlayer
+import routing.sections.Content
+import routing.sections.Drawer
+import theme.ColorBox
+
+@Composable
+fun ScreenHome() {
+
+    val audioList = ArrayList<ModelAudio>().apply {
+        addAll(CoreDB.Audios.read())
+    }
+    val filteredAudioList = SnapshotStateList<ModelAudio>().apply {
+        addAll(audioList)
+    }
+    val folderList = SnapshotStateList<ModelFolder>().apply {
+        addAll(CoreDB.Folders.read())
+    }
+
+    /*states*/
+    var currentFolder by remember { mutableStateOf(ModelFolder(childCunt = audioList.size)) }
+    var currentSearchKeyword by remember { mutableStateOf("") }
+
+    val scope = rememberCoroutineScope()
+
+    val drawerState = rememberCustomOCState()
+    val searchState = rememberCustomOCState()
+
+    CustomScaffold(
+        drawerState = drawerState,
+        searchState = searchState,
+        scope = scope,
+        drawerBackgroundColor = ColorBox.primaryDark2,
+        appbarBackgroundColor = ColorBox.primaryDark,
+        appbarContent = {
+            Appbar(currentFolder, onSearchClicked = {
+                scope.launch {
+                    drawerState.close()
+                    searchState.open()
+                }
+            })
+        },
+        mainContent = {
+            Content(
+                audioList = filteredAudioList,
+                onFav = { id, isFav  ->
+                    val indexMain = audioList.indexOfFirst { it.id == id }
+                    audioList[indexMain].isFav = isFav
+
+                    val newChildCount = if (isFav) folderList[1].childCunt + 1 else folderList[1].childCunt - 1
+                    folderList[1] = folderList[1].copy(childCunt = newChildCount)
+                    if (currentFolder.path == "#Fav") {
+                        currentFolder = currentFolder.copy(childCunt = newChildCount)
+                        filterList(currentSearchKeyword, currentFolder, filteredAudioList, audioList)
+                    }
+                },
+                onEdited = { editedAudio ->
+                    val indexMain = audioList.indexOfFirst { it.id == editedAudio.id }
+                    audioList[indexMain] = editedAudio
+                }
+            )
+            CompactPlayer()
+        },
+        onSearchContent = {
+            currentSearchKeyword = it
+            filterList(currentSearchKeyword, currentFolder, filteredAudioList, audioList)
+        },
+        drawerContent = {
+            Drawer(
+                folders = folderList,
+                selectedFolder = currentFolder.path
+            ) {
+                scope.launch {
+                    drawerState.close()
+                }
+                currentFolder = it
+                filterList(currentSearchKeyword, currentFolder, filteredAudioList, audioList)
+            }
+        }
+    )
+
+}
+
+
+private fun filterList(
+    keyword: String,
+    modelFolder: ModelFolder,
+    filterList: SnapshotStateList<ModelAudio>,
+    mainList: ArrayList<ModelAudio>
+) {
+    filterList.clear()
+    if (keyword.trim().isNotEmpty()) {
+        filterList.addAll(mainList.filter { it.name.lowercase().contains(keyword.lowercase()) })
+    } else {
+        when (modelFolder.path) {
+            "#All" -> filterList.addAll(mainList)
+            "#Fav" -> filterList.addAll(mainList.filter { it.isFav })
+            else -> filterList.addAll(mainList.filter { it.folder == modelFolder.path })
+        }
+    }
+}
