@@ -13,7 +13,7 @@ class FolderWalker(private var callback : Callback) {
 
     private val supportedFormats = arrayListOf("mp3","m4a","ogg")
 
-    private val listFolders = mutableMapOf<String,Int>()
+    private val listFolders = mutableMapOf<File,Int>()
     private var count = 0
 
     fun findAudios (dir: File) {
@@ -22,8 +22,8 @@ class FolderWalker(private var callback : Callback) {
                 recursiveWalk(dir)
                 listFolders.forEach {
                     val modelFolderItem = ModelFolder(
-                        name = it.key.substringAfterLast("/"),
-                        path = it.key,
+                        name = it.key.name,
+                        path = it.key.absolutePath,
                         childCunt = it.value
                     )
                     CoreDB.Folders.insert(modelFolderItem)
@@ -59,12 +59,12 @@ class FolderWalker(private var callback : Callback) {
                     val modelAudio = AudioInfo.getInfo2(x)
                     if (modelAudio != null && modelAudio.duration > 9000) {
                         CoreDB.Audios.insert(modelAudio)
-                        var folderCount = listFolders[x.parentFile.absolutePath]
+                        var folderCount = listFolders[x.parentFile]
                         if (folderCount == null) {
-                            listFolders[x.parentFile.absolutePath] = 1
+                            listFolders[x.parentFile] = 1
                         } else {
                             folderCount++
-                            listFolders[x.parentFile.absolutePath] = folderCount
+                            listFolders[x.parentFile] = folderCount
                         }
                         count++
                         callback.onCounting(count)

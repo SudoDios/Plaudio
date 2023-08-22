@@ -40,6 +40,9 @@ compose.desktop {
             linux {
                 iconFile.set(iconsRoot.resolve("icons/app_icon.png"))
             }
+            windows {
+                iconFile.set(iconsRoot.resolve("icons/app_icon.ico"))
+            }
         }
     }
 }
