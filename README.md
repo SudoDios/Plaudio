@@ -1,5 +1,5 @@
 <p align="center">
-<img width="70%" src="banner.png" alt=""/>
+<img width="70%" src="assets/banner.png" alt=""/>
 </p>
 
 <h1 align="center">Plaudio</h1>
@@ -12,6 +12,13 @@
 <img src="https://img.shields.io/badge/OpenJDK-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="openjdk" />
 </p>
 
+
+### Screenshots
+
+|                                                  |                                                  |                                                  |
+|--------------------------------------------------|--------------------------------------------------|--------------------------------------------------|
+| <img src="assets/screenshot1.png" alt="linux" /> | <img src="assets/screenshot2.png" alt="linux" /> | <img src="assets/screenshot3.png" alt="linux" /> |
+| <img src="assets/screenshot4.png" alt="linux" /> | <img src="assets/screenshot5.png" alt="linux" /> | 
 
 ### Features
 
