@@ -67,7 +67,7 @@ fun AboutDialog(
         )
         Text(
             modifier = Modifier.padding(top = 5.dp),
-            text = "1.0.0",
+            text = "1.1.0",
             fontSize = 14.sp,
             color = ColorBox.text.copy(0.7f)
         )
