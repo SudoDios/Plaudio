@@ -2,7 +2,7 @@
 <img width="80%" src="banner.png" alt=""/>
 </p>
 
-<h2 align="center">Plaudio</h2>
+<h1 align="center">Plaudio</h1>
 <h6 align="center">An open source beautiful audio player and tag editor for desktop with compose</h6>
 
 <p align="center">
@@ -12,7 +12,6 @@
 <img src="https://img.shields.io/badge/OpenJDK-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white" alt="openjdk" />
 </p>
 
----
 
 ### Features
 
