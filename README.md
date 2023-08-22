@@ -1,5 +1,5 @@
 <p align="center">
-<img width="80%" src="banner.png" alt=""/>
+<img width="70%" src="banner.png" alt=""/>
 </p>
 
 <h1 align="center">Plaudio</h1>
