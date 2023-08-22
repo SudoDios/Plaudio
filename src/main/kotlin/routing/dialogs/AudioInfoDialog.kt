@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -70,7 +71,8 @@ fun AudioInfoDialog(
             modifier = Modifier.padding(top = 16.dp, start = 12.dp, end = 12.dp),
             text = modelAudio.name,
             fontSize = 16.sp,
-            color = ColorBox.text
+            color = ColorBox.text,
+            textAlign = TextAlign.Center
         )
         Text(
             modifier = Modifier.padding(top = 8.dp, start = 12.dp, end = 12.dp),
@@ -78,7 +80,8 @@ fun AudioInfoDialog(
             fontSize = 13.sp,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
-            color = ColorBox.text.copy(0.8f)
+            color = ColorBox.text.copy(0.8f),
+            textAlign = TextAlign.Center
         )
         Row(
             modifier = Modifier.padding(top = 10.dp),
