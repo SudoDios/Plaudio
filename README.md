@@ -51,6 +51,14 @@
 > - `cd Plaudio`
 > - `./gradlew run`
 
+### Libraries
+
+> - [Odyssey](https://github.com/AlexGladkov/Odyssey) navigations
+> - [Jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger/src/master/README.md) tag editor
+> - [vlcj](https://github.com/caprica/vlcj) libvlc binding
+> - [sqlite-jdbc](https://github.com/xerial/sqlite-jdbc) sqlite driver
+> - And I thank compose multiplatform ❤️
+
 ## License
 Copyright (C) 2023 SudoDios
 http://www.apache.org/licenses/LICENSE-2.0
