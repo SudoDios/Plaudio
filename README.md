@@ -51,6 +51,12 @@
 > - `cd Plaudio`
 > - `./gradlew run`
 
+### Todo
+
+- [ ] TrayIcon
+- [ ] ReSync to merge new files (& folders)
+- [ ] more tag fields edit
+
 ### Libraries
 
 > - [Odyssey](https://github.com/AlexGladkov/Odyssey) navigations
