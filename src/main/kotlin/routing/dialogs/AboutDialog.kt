@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import components.MyIconButton
@@ -71,13 +72,14 @@ fun AboutDialog(
             color = ColorBox.text.copy(0.7f)
         )
         Text(
-            modifier = Modifier.padding(top = 12.dp),
-            text = "A Open Source Beautiful Audio Player",
+            modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
+            text = "An Open Source Beautiful Audio player\n& Tag Editor",
             fontSize = 13.sp,
+            textAlign = TextAlign.Center,
             color = ColorBox.text.copy(0.8f)
         )
         Row(
-            modifier = Modifier.padding(top = 6.dp),
+            modifier = Modifier.padding(top = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
@@ -124,7 +126,7 @@ fun AboutDialog(
             modifier = Modifier.padding(top = 6.dp, bottom = 20.dp).pointerHoverIcon(icon = PointerIcon(Cursor(Cursor.HAND_CURSOR))),
             text = AnnotatedString("View Source Code"),
             onClick = {
-                uriHandler.openUri("https://github.com/SudoDios")
+                uriHandler.openUri("https://github.com/SudoDios/Plaudio")
             },
             style = TextStyle(
                 fontSize = 11.sp,
