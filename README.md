@@ -55,7 +55,9 @@
 
 - [ ] TrayIcon
 - [ ] ReSync to merge new files (& folders)
-- [ ] more tag fields edit
+- [ ] More tag fields edit
+- [ ] Make resizable window
+- [ ] Playlist feature
 
 ### Libraries
 
@@ -63,6 +65,7 @@
 > - [Jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger/src/master/README.md) tag editor
 > - [vlcj](https://github.com/caprica/vlcj) libvlc binding
 > - [sqlite-jdbc](https://github.com/xerial/sqlite-jdbc) sqlite driver
+> - [solarIconsSet](https://www.figma.com/community/file/1166831539721848736) Icons
 > - And I thank compose multiplatform ❤️
 
 ## License
