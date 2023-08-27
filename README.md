@@ -15,10 +15,10 @@
 
 ### Screenshots
 
-|                                                  |                                                  |                                                  |
-|--------------------------------------------------|--------------------------------------------------|--------------------------------------------------|
-| <img src="assets/screenshot1.png" alt="linux" /> | <img src="assets/screenshot2.png" alt="linux" /> | <img src="assets/screenshot3.png" alt="linux" /> |
-| <img src="assets/screenshot4.png" alt="linux" /> | <img src="assets/screenshot5.png" alt="linux" /> | 
+|                                                  |                                                  |                                                       |
+|--------------------------------------------------|--------------------------------------------------|-------------------------------------------------------|
+| <img src="assets/screenshot1.png" alt="linux" /> | <img src="assets/screenshot2.png" alt="linux" /> | <img src="assets/screenshot3.png" alt="linux" />      |
+| <img src="assets/screenshot4.png" alt="linux" /> | <img src="assets/screenshot5.png" alt="linux" /> | <img src="assets/screenshot_light.png" alt="linux" /> |
 
 ### Features
 
