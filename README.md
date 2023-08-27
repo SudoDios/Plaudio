@@ -58,6 +58,7 @@
 - [ ] More tag fields edit
 - [ ] Make resizable window
 - [ ] Playlist feature
+- [ ] Light Theme
 
 ### Libraries
 
