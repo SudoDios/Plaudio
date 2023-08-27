@@ -62,9 +62,12 @@ fun RowScope.Appbar(currentFolder : ModelFolder,onSearchClicked : () -> Unit) {
         callback = {
             when (it) {
                 0 -> {
-
+                    ColorBox.switchDarkLight()
                 }
                 1 -> {
+
+                }
+                2 -> {
                     modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
                         AboutDialog {
                             modalController.popBackStack(null)

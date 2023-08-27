@@ -1,6 +1,9 @@
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -13,11 +16,14 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import core.CorePlayer
 import core.db.CoreDB
+import core.db.models.ModelAudio
+import core.db.models.ModelFolder
 import routing.routingGraph
 import ru.alexgladkov.odyssey.compose.setup.OdysseyConfiguration
 import ru.alexgladkov.odyssey.compose.setup.setNavigationContent
 import theme.ColorBox
 import theme.Fonts
+import utils.Prefs
 import utils.Tools
 import java.awt.Dimension
 import java.io.File
@@ -26,6 +32,19 @@ import java.util.logging.LogManager
 object CenterState {
 
     var hasAnyTextFieldFocus = false
+
+    val audioList = ArrayList<ModelAudio>().apply {
+        addAll(CoreDB.Audios.read())
+    }
+    val filteredAudioList = SnapshotStateList<ModelAudio>().apply {
+        addAll(audioList)
+    }
+    val folderList = SnapshotStateList<ModelFolder>().apply {
+        addAll(CoreDB.Folders.read())
+    }
+
+    /*states*/
+    var currentFolder = mutableStateOf(ModelFolder(childCunt = audioList.size))
 
 }
 
@@ -41,12 +60,12 @@ fun App() {
     MaterialTheme(
         typography = Fonts.typography,
         colors = MaterialTheme.colors.copy(
-            isLight = false,
+            isLight = !ColorBox.isDarkMode,
             surface = ColorBox.card,
             primary = ColorBox.primary
         )
     ) {
-        setNavigationContent(OdysseyConfiguration(backgroundColor = ColorBox.primaryDark), onApplicationFinish = {}) {
+        setNavigationContent(OdysseyConfiguration(backgroundColor = if (Prefs.isDarkMode) Color.Black else Color.White), onApplicationFinish = {}) {
             routingGraph()
         }
     }

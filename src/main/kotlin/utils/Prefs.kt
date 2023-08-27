@@ -37,4 +37,12 @@ object Prefs {
             preferences.put("equalizerPreset",value)
         }
 
+    var isDarkMode : Boolean
+        get() {
+            return preferences.getBoolean("isDarkMode",true)
+        }
+        set(value) {
+            preferences.putBoolean("isDarkMode",value)
+        }
+
 }

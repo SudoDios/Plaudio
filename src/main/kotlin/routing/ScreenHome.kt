@@ -1,10 +1,13 @@
 package routing
 
+import CenterState.audioList
+import CenterState.currentFolder
+import CenterState.filteredAudioList
+import CenterState.folderList
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import components.CustomScaffold
 import components.rememberCustomOCState
-import core.db.CoreDB
 import core.db.models.ModelAudio
 import core.db.models.ModelFolder
 import kotlinx.coroutines.launch
@@ -17,18 +20,6 @@ import theme.ColorBox
 @Composable
 fun ScreenHome() {
 
-    val audioList = ArrayList<ModelAudio>().apply {
-        addAll(CoreDB.Audios.read())
-    }
-    val filteredAudioList = SnapshotStateList<ModelAudio>().apply {
-        addAll(audioList)
-    }
-    val folderList = SnapshotStateList<ModelFolder>().apply {
-        addAll(CoreDB.Folders.read())
-    }
-
-    /*states*/
-    var currentFolder by remember { mutableStateOf(ModelFolder(childCunt = audioList.size)) }
     var currentSearchKeyword by remember { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
@@ -43,7 +34,7 @@ fun ScreenHome() {
         drawerBackgroundColor = ColorBox.primaryDark2,
         appbarBackgroundColor = ColorBox.primaryDark,
         appbarContent = {
-            Appbar(currentFolder, onSearchClicked = {
+            Appbar(currentFolder.value, onSearchClicked = {
                 scope.launch {
                     drawerState.close()
                     searchState.open()
@@ -59,9 +50,9 @@ fun ScreenHome() {
 
                     val newChildCount = if (isFav) folderList[1].childCunt + 1 else folderList[1].childCunt - 1
                     folderList[1] = folderList[1].copy(childCunt = newChildCount)
-                    if (currentFolder.path == "#Fav") {
-                        currentFolder = currentFolder.copy(childCunt = newChildCount)
-                        filterList(currentSearchKeyword, currentFolder, filteredAudioList, audioList)
+                    if (currentFolder.value.path == "#Fav") {
+                        currentFolder.value = currentFolder.value.copy(childCunt = newChildCount)
+                        filterList(currentSearchKeyword, currentFolder.value, filteredAudioList, audioList)
                     }
                 },
                 onEdited = { editedAudio ->
@@ -73,18 +64,18 @@ fun ScreenHome() {
         },
         onSearchContent = {
             currentSearchKeyword = it
-            filterList(currentSearchKeyword, currentFolder, filteredAudioList, audioList)
+            filterList(currentSearchKeyword, currentFolder.value, filteredAudioList, audioList)
         },
         drawerContent = {
             Drawer(
                 folders = folderList,
-                selectedFolder = currentFolder.path
+                selectedFolder = currentFolder.value.path
             ) {
                 scope.launch {
                     drawerState.close()
                 }
-                currentFolder = it
-                filterList(currentSearchKeyword, currentFolder, filteredAudioList, audioList)
+                currentFolder.value = it
+                filterList(currentSearchKeyword, currentFolder.value, filteredAudioList, audioList)
             }
         }
     )

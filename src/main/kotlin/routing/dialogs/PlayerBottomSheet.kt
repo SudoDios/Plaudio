@@ -241,7 +241,7 @@ fun PlayerBottomSheet(
                     Box(Modifier.size(48.dp).clip(RoundedCornerShape(50)).clickable {
                         CorePlayer.autoMute()
                     }) {
-                        MuteAnimationIcon(modifier = Modifier.size(26.dp).align(Alignment.Center), isMute = isMute.value)
+                        MuteAnimationIcon(modifier = Modifier.size(26.dp).align(Alignment.Center),color = ColorBox.text.copy(0.8f), isMute = isMute.value)
                     }
                     CustomSlider(
                         modifier = Modifier.padding(start = 4.dp,end = 16.dp).weight(1f),
