@@ -32,7 +32,7 @@
 ### Installation
 
 > 1. Plaudio need to install **LibVLC** on your system
->    - on Linux : `sudo apt install libvlc-dev`
+>    - on Linux : `sudo apt install vlc`
 >    - on windows : 
 >      - download vlc win from [this](https://mirror.rasanegar.com/videolan/vlc/3.0.18/win64/vlc-3.0.18-win64.exe)
 >      - install downloaded vlc exe file
