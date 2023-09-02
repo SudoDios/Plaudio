@@ -2,7 +2,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -74,14 +73,13 @@ fun App() {
 }
 
 
-@OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
     Window(
         icon = painterResource("icons/app_icon.png"),
         onCloseRequest = ::exitApplication,
         title = "Plaudio",
         state = WindowState(size = DpSize(400.dp,645.dp)),
-        resizable = false,
+        resizable = true,
         onKeyEvent = {
             if (!CenterState.hasAnyTextFieldFocus) {
                 when  {
