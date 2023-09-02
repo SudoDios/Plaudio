@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
@@ -35,7 +36,6 @@ import utils.Tools
 import utils.Tools.formatToDuration
 import utils.Tools.roundPlace
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun PlayerBottomSheet(
     onClose: () -> Unit
@@ -69,25 +69,22 @@ fun PlayerBottomSheet(
         }
     )
 
-    var progressSeekValue by remember { mutableStateOf(0f) }
-    var isSeeking by remember { mutableStateOf(false) }
-
     val isMute = CorePlayer.isMutedCallback.observeAsState()
     val volumeChanged = CorePlayer.volumeChangedCallback.observeAsState()
     val mediaItem = CorePlayer.currentMediaItemCallback.observeAsState()
     val isPlaying = CorePlayer.playPauseCallback.observeAsState()
-    val currentProgress = CorePlayer.progressCallback.observeAsState()
     val isEqEnable = CorePlayer.isEqEnableCallback.observeAsState()
 
+    var backgroundImageHeight by remember { mutableStateOf(0) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxWidth()) {
         SmoothImage(
-            modifier = Modifier.fillMaxSize().blur(20.dp).alpha(0.4f),
+            modifier = Modifier.fillMaxWidth().height(backgroundImageHeight.dp).blur(20.dp).alpha(0.4f),
             image = mediaItem.value.coverArt,
             fadeOnChange = true,
             contentScale = ContentScale.Crop
         )
-        Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(Modifier.fillMaxWidth().onSizeChanged { backgroundImageHeight = it.height }, horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
                 modifier = Modifier.height(38.dp).fillMaxWidth().clickable {
                     onClose.invoke()
@@ -98,7 +95,7 @@ fun PlayerBottomSheet(
             )
             Spacer(Modifier.padding(top = 12.dp))
             SmoothImage(
-                modifier = Modifier.weight(1f).aspectRatio(1f).clip(RoundedCornerShape(16.dp)),
+                modifier = Modifier.size(230.dp).aspectRatio(1f).clip(RoundedCornerShape(16.dp)),
                 fadeOnChange = true,
                 image = mediaItem.value.coverArt,
                 contentScale = ContentScale.Crop
@@ -106,7 +103,7 @@ fun PlayerBottomSheet(
             AnimatedContent(
                 targetState = mediaItem.value.name,
                 transitionSpec = {
-                    (slideInVertically { height -> height } + fadeIn() with
+                    (slideInVertically { height -> height } + fadeIn() togetherWith
                             slideOutVertically { height -> -height } + fadeOut()).using(SizeTransform(false))
                 }
             ) { audioName ->
@@ -128,39 +125,7 @@ fun PlayerBottomSheet(
                 overflow = TextOverflow.Ellipsis,
                 fontSize = 13.sp
             )
-            Row(
-                modifier = Modifier.padding(start = 25.dp, end = 25.dp, top = 16.dp, bottom = 16.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically) {
-                val pos = (currentProgress.value * mediaItem.value.duration).toLong().formatToDuration()
-                val dur = mediaItem.value.duration.formatToDuration()
-                Text(
-                    text = pos,
-                    color = ColorBox.text.copy(0.7f),
-                    fontSize = 11.sp
-                )
-                CustomSlider(
-                    modifier = Modifier.padding(start = 20.dp, end = 20.dp).weight(1f),
-                    value = if (isSeeking) progressSeekValue else currentProgress.value,
-                    trackColor = ColorBox.text,
-                    thumbColor = ColorBox.text,
-                    thumbSize = 8.dp,
-                    alwaysShowThumb = true,
-                    valueChanged = {
-                        progressSeekValue = it
-                        isSeeking = true
-                    },
-                    valueChangedFinished = {
-                        isSeeking = false
-                        CorePlayer.seekTo(progressSeekValue)
-                    }
-                )
-                Text(
-                    text = dur,
-                    color = ColorBox.text.copy(0.7f),
-                    fontSize = 11.sp
-                )
-            }
-
+            DurationLayout(mediaItem.value.duration)
             Row(
                 modifier = Modifier.padding(start = 20.dp,bottom = 4.dp,end = 20.dp).fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -289,4 +254,46 @@ fun PlayerBottomSheet(
         }
     }
 
+}
+
+@Composable
+private fun DurationLayout (duration : Long) {
+
+    var progressSeekValue by remember { mutableStateOf(0f) }
+    var isSeeking by remember { mutableStateOf(false) }
+
+    val currentProgress = CorePlayer.progressCallback.observeAsState()
+
+    Row(
+        modifier = Modifier.padding(start = 25.dp, end = 25.dp, top = 16.dp, bottom = 16.dp).fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically) {
+        val pos = (currentProgress.value * duration).toLong().formatToDuration()
+        val dur = duration.formatToDuration()
+        Text(
+            text = pos,
+            color = ColorBox.text.copy(0.7f),
+            fontSize = 11.sp
+        )
+        CustomSlider(
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp).weight(1f),
+            value = if (isSeeking) progressSeekValue else currentProgress.value,
+            trackColor = ColorBox.text,
+            thumbColor = ColorBox.text,
+            thumbSize = 8.dp,
+            alwaysShowThumb = true,
+            valueChanged = {
+                progressSeekValue = it
+                isSeeking = true
+            },
+            valueChangedFinished = {
+                isSeeking = false
+                CorePlayer.seekTo(progressSeekValue)
+            }
+        )
+        Text(
+            text = dur,
+            color = ColorBox.text.copy(0.7f),
+            fontSize = 11.sp
+        )
+    }
 }

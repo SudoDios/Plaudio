@@ -26,16 +26,15 @@ import components.PlayAnimationView
 import components.SmoothImage
 import core.CorePlayer
 import dev.icerock.moko.mvvm.livedata.compose.observeAsState
-import routing.dialogs.PlayerBottomSheet
-import ru.alexgladkov.odyssey.compose.extensions.present
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
-import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.ModalSheetConfiguration
 import theme.ColorBox
 import utils.Tools.formatToDuration
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BoxScope.CompactPlayer() {
+fun BoxScope.CompactPlayer(
+    onClicked : () -> Unit
+) {
 
     val modalController = LocalRootController.current.findModalController()
 
@@ -71,13 +70,7 @@ fun BoxScope.CompactPlayer() {
                 )
             }
             .clickable {
-                modalController.present(ModalSheetConfiguration(cornerRadius = 20, maxHeight = 0.9f, alpha = 0.7f)) {
-                    PlayerBottomSheet(
-                        onClose = {
-                            modalController.popBackStack(null)
-                        }
-                    )
-                }
+                onClicked.invoke()
             }
         ) {
             Row(Modifier.padding(top = 2.dp).fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {

@@ -11,6 +11,7 @@ import components.rememberCustomOCState
 import core.db.models.ModelAudio
 import core.db.models.ModelFolder
 import kotlinx.coroutines.launch
+import routing.dialogs.PlayerBottomSheet
 import routing.sections.Appbar
 import routing.sections.CompactPlayer
 import routing.sections.Content
@@ -25,10 +26,12 @@ fun ScreenHome() {
     val scope = rememberCoroutineScope()
 
     val drawerState = rememberCustomOCState()
+    val sheetState = rememberCustomOCState()
     val searchState = rememberCustomOCState()
 
     CustomScaffold(
         drawerState = drawerState,
+        sheetState = sheetState,
         searchState = searchState,
         scope = scope,
         drawerBackgroundColor = ColorBox.primaryDark2,
@@ -60,7 +63,13 @@ fun ScreenHome() {
                     audioList[indexMain] = editedAudio
                 }
             )
-            CompactPlayer()
+            CompactPlayer(
+                onClicked = {
+                    scope.launch {
+                        sheetState.open()
+                    }
+                }
+            )
         },
         onSearchContent = {
             currentSearchKeyword = it
@@ -76,6 +85,13 @@ fun ScreenHome() {
                 }
                 currentFolder.value = it
                 filterList(currentSearchKeyword, currentFolder.value, filteredAudioList, audioList)
+            }
+        },
+        sheetContent = {
+            PlayerBottomSheet {
+                scope.launch {
+                    sheetState.close()
+                }
             }
         }
     )
