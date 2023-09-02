@@ -18,8 +18,8 @@ dependencies {
     implementation(compose.desktop.currentOs)
 
     implementation("dev.icerock.moko:mvvm-livedata-compose:0.16.1")
-    implementation("io.github.alexgladkov:odyssey-core:1.3.1")
-    implementation("io.github.alexgladkov:odyssey-compose:1.3.1")
+    implementation("io.github.alexgladkov:odyssey-core:1.3.20")
+    implementation("io.github.alexgladkov:odyssey-compose:1.3.20")
 
     implementation("net.jthink:jaudiotagger:3.0.1")
     implementation("com.google.code.gson:gson:2.10.1")
