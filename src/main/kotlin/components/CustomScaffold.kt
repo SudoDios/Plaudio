@@ -34,6 +34,7 @@ import theme.ColorBox
 @Composable
 fun CustomScaffold(
     drawerState: CustomOcState,
+    sheetState: CustomOcState,
     searchState: CustomOcState,
     scope: CoroutineScope,
     drawerBackgroundColor: Color,
@@ -42,7 +43,8 @@ fun CustomScaffold(
     onSearchContent : (String) -> Unit,
     appbarContent: @Composable RowScope.() -> Unit,
     mainContent: @Composable @UiComposable BoxWithConstraintsScope.() -> Unit,
-    drawerContent: @Composable BoxScope.() -> Unit
+    drawerContent: @Composable BoxScope.() -> Unit,
+    sheetContent: @Composable BoxScope.() -> Unit
 ) {
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize().background(ColorBox.primaryDark)) {
@@ -55,6 +57,7 @@ fun CustomScaffold(
                 DrawerLayout(scope, drawerState, drawerBackgroundColor, drawerContent)
             }
         }
+        SheetLayout(scope,sheetState,ColorBox.primaryDark2,sheetContent)
     }
 
 }
@@ -166,12 +169,43 @@ private fun DrawerLayout(
             enter = slideInHorizontally(initialOffsetX = { -250 }),
             exit = slideOutHorizontally(targetOffsetX = { -250 })
         ) {
-            Box(
-                Modifier.width(250.dp).fillMaxHeight().clip(RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp))
+            Box(Modifier.width(250.dp).fillMaxHeight().clip(RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp))
                     .background(drawerBackgroundColor), content = drawerContent
             )
         }
     }
+}
+
+@Composable
+private fun BoxWithConstraintsScope.SheetLayout(
+    scope: CoroutineScope,
+    sheetState: CustomOcState,
+    backgroundColor: Color,
+    content: @Composable BoxScope.() -> Unit
+) {
+
+    val slideAnim = animateFloatAsState(if (sheetState.isOpen) 1f else 0f)
+
+    DimView(Color.Black.copy(0.8f), slideAnim.value) {
+        scope.launch {
+            sheetState.close()
+        }
+    }
+    AnimatedVisibility(
+        modifier = Modifier.align(Alignment.BottomCenter),
+        visible = sheetState.isOpen,
+        enter = slideInVertically(initialOffsetY = { it }),
+        exit = slideOutVertically(targetOffsetY = { it })
+    ) {
+        Box(Modifier
+            .align(Alignment.BottomCenter)
+            .widthIn(max = 400.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(topEnd = 20.dp, topStart = 20.dp))
+            .background(backgroundColor), content = content
+        )
+    }
+
 }
 
 class CustomOcState {
