@@ -1,7 +1,6 @@
 package routing
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -13,7 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,24 +43,31 @@ fun ScreenSplash() {
         }
     }
 
+    Image(
+        modifier = Modifier.fillMaxSize().blur(16.dp),
+        painter = painterResource("images/splash-background.jpg"),
+        contentDescription = null,
+        contentScale = ContentScale.Crop
+    )
     Column(
-        modifier = Modifier.fillMaxSize().animateContentSize(),
+        modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(
-            modifier = Modifier.size(110.dp),
-            painter = painterResource("icons/app_icon.png"),
-            contentDescription = null
-        )
-        if (audioCount == 0) {
-            Text(
-                modifier = Modifier.padding(top = 20.dp),
-                text = "Click search audio file to start",
-                fontSize = 12.sp,
-                color = ColorBox.text.copy(0.7f)
+        Box(Modifier.clip(RoundedCornerShape(50)).background(Color.White.copy(0.3f))) {
+            Icon(
+                modifier = Modifier.padding(16.dp).size(110.dp),
+                painter = painterResource("icons/app_icon.svg"),
+                contentDescription = null,
+                tint = Color.White
             )
         }
+        Text(
+            modifier = Modifier.padding(top = 20.dp),
+            text = "Welcome to Plaudio",
+            fontSize = 18.sp,
+            color = Color.White
+        )
         AnimatedVisibility(
             visible = audioCount == 0
         ) {
@@ -95,7 +104,7 @@ fun ScreenSplash() {
                 )
                 Text(
                     modifier = Modifier.padding(start = 12.dp, end = 12.dp),
-                    text = "Search audio files",
+                    text = "Start search audio files",
                     color = ColorBox.primary.copy(0.9f),
                     fontSize = 13.sp
                 )
