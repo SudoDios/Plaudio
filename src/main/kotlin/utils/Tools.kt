@@ -16,12 +16,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.log10
 import kotlin.math.pow
 
-
 object Tools {
-
-    val userHome : String get() = System.getProperty("user.home")
-    val coverPaths : String get() = "$userHome/.cplayer/covers"
-    val dbPath : String get() = "$userHome/.cplayer/db"
 
     fun getRandomString(length: Int) : String {
         val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
@@ -109,7 +104,7 @@ object Tools {
 
     fun writeThumbImage(array: ByteArray,mimeType : String) : String? {
         val mime = if (mimeType.contains("/")) mimeType.substringAfterLast("/") else mimeType
-        val fileSave = File("$coverPaths/${getRandomString(12)}.$mime")
+        val fileSave = File("${Global.coverPaths}/${getRandomString(12)}.$mime")
         fileSave.createNewFile()
         return try {
             val stream = FileOutputStream(fileSave.absolutePath)
