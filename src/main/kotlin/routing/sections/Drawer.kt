@@ -46,9 +46,12 @@ fun Drawer(
     val modalController = LocalRootController.current.findModalController()
 
     Box(Modifier.width(300.dp).fillMaxHeight()) {
-        Column(modifier = Modifier.fillMaxSize().background(ColorBox.primaryDark2)) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(ColorBox.primaryDark2)
+        ) {
             Row(
-                Modifier.fillMaxWidth().padding(start = 24.dp, top = 24.dp, bottom = 12.dp),
+                Modifier.fillMaxWidth().padding(start = 24.dp, top = 24.dp, bottom = 24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
@@ -73,7 +76,10 @@ fun Drawer(
                     )
                 )
             }
-            LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(12.dp)) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = 12.dp, end = 12.dp,bottom = 80.dp)
+            ) {
                 items(Global.Data.folderList) {
                     FolderItem(it, Global.Data.currentFolder.value.path == it.path) {
                         callback.invoke()
@@ -89,14 +95,17 @@ fun Drawer(
                 }
             }
         }
-        Row(Modifier.padding(12.dp).fillMaxWidth().align(Alignment.BottomCenter)) {
-            Row(Modifier.height(44.dp)
-                .weight(1f)
-                .clip(RoundedCornerShape(50))
-                .background(ColorBox.text.copy(0.1f))
-                .clickable {
-                ColorBox.switchDarkLight()
-                },
+        Row(Modifier.fillMaxWidth().align(Alignment.BottomCenter).background(ColorBox.card)) {
+            Row(
+                Modifier
+                    .padding(12.dp)
+                    .height(44.dp)
+                    .weight(1f)
+                    .clip(RoundedCornerShape(50))
+                    .background(ColorBox.text.copy(0.1f))
+                    .clickable {
+                        ColorBox.switchDarkLight()
+                    },
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 DayNightAnimationIcon(
@@ -114,7 +123,7 @@ fun Drawer(
             MyIconButton(
                 size = 44.dp,
                 contentPadding = 8.dp,
-                padding = PaddingValues(start = 12.dp),
+                padding = PaddingValues(top = 12.dp, bottom = 12.dp, end = 12.dp),
                 icon = "icons/info.svg"
             ) {
                 modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 7)) {
@@ -125,7 +134,6 @@ fun Drawer(
             }
         }
     }
-
 
 }
 
