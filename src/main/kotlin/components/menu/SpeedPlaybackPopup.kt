@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,7 +34,7 @@ fun SpeedPlaybackPopup(
     callback: (String) -> Unit,
 ) {
 
-    var speedSeekValue by remember { mutableStateOf(Pair(false,Prefs.playbackSpeed)) }
+    var speedSeekValue by remember { mutableStateOf(Pair(false, Prefs.playbackSpeed)) }
 
     CustomDropdownMenu(
         expanded = show,
@@ -47,7 +51,7 @@ fun SpeedPlaybackPopup(
                 modifier = Modifier.fillMaxWidth().height(40.dp),
                 value = speedSeekValue,
                 valueChanged = {
-                    speedSeekValue = Pair(false,it)
+                    speedSeekValue = Pair(false, it)
                     Prefs.playbackSpeed = speedSeekValue.second
                 },
                 valueChangedFinished = {
@@ -64,26 +68,26 @@ fun SpeedPlaybackPopup(
         }
         Divider(Modifier.padding(top = 6.dp, bottom = 2.dp).fillMaxWidth(), color = ColorBox.text.copy(0.1f))
         val convertSpeedStr = ((speedSeekValue.second * 1.5) + 0.5).roundPlace(1).toString()
-        Items("0.5x",isSelected = convertSpeedStr == "0.5") {
-            speedSeekValue = Pair(true,0f)
+        Items("0.5x", isSelected = convertSpeedStr == "0.5") {
+            speedSeekValue = Pair(true, 0f)
             Prefs.playbackSpeed = 0f
             CorePlayer.changeSpeed(0.5f)
             callback.invoke("0.5x")
         }
-        Items("1.0x",isSelected = convertSpeedStr == "1.0") {
-            speedSeekValue = Pair(true,0.33f)
+        Items("1.0x", isSelected = convertSpeedStr == "1.0") {
+            speedSeekValue = Pair(true, 0.33f)
             Prefs.playbackSpeed = 0.33f
             CorePlayer.changeSpeed(1f)
             callback.invoke("1.0x")
         }
-        Items("1.5x",isSelected = convertSpeedStr == "1.5") {
-            speedSeekValue = Pair(true,0.66f)
+        Items("1.5x", isSelected = convertSpeedStr == "1.5") {
+            speedSeekValue = Pair(true, 0.66f)
             Prefs.playbackSpeed = 0.66f
             CorePlayer.changeSpeed(1.5f)
             callback.invoke("1.5x")
         }
-        Items("2.0x",isSelected = convertSpeedStr == "2.0") {
-            speedSeekValue = Pair(true,1f)
+        Items("2.0x", isSelected = convertSpeedStr == "2.0") {
+            speedSeekValue = Pair(true, 1f)
             Prefs.playbackSpeed = 1f
             CorePlayer.changeSpeed(2f)
             callback.invoke("2.0x")
@@ -93,18 +97,21 @@ fun SpeedPlaybackPopup(
 }
 
 @Composable
-private fun Items (text : String,isSelected : Boolean,onClick : () -> Unit) {
+private fun Items(text: String, isSelected: Boolean, onClick: () -> Unit) {
     val color = if (isSelected) ColorBox.text else ColorBox.text.copy(0.6f)
-    Row(modifier = Modifier.height(40.dp).fillMaxWidth().clickable { onClick.invoke() }, verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.height(40.dp).fillMaxWidth().clickable { onClick.invoke() },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Spacer(Modifier.padding(6.dp))
-        Text(modifier = Modifier.padding(end = 16.dp),text = text, color = color, fontSize = 13.sp)
+        Text(modifier = Modifier.padding(end = 16.dp), text = text, color = color, fontSize = 13.sp)
     }
 }
 
 @Composable
 private fun SpeedSeekbar(
     modifier: Modifier,
-    value: Pair<Boolean,Float> = Pair(false,0f),
+    value: Pair<Boolean, Float> = Pair(false, 0f),
     valueChanged: (Float) -> Unit,
     valueChangedFinished: () -> Unit
 ) {
@@ -135,7 +142,16 @@ private fun SpeedSeekbar(
                 offsetX = it.x
                 isPressed = true
             },
-        )
+        ).pointerHoverIcon(icon = PointerIcon.Hand)
+            .pointerInput(Unit) {
+                detectTapGestures { offset ->
+                    offsetX = offset.x
+                    val progress = (offsetX / currentWidth.toFloat())
+                    valueChanged.invoke(progress)
+                    isPressed = false
+                    valueChangedFinished.invoke()
+                }
+            }
     ) {
         drawRect(
             color = ColorBox.text.copy(0.2f),
