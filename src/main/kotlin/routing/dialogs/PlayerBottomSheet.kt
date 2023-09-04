@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import components.*
@@ -31,6 +32,7 @@ import ru.alexgladkov.odyssey.compose.extensions.present
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
 import theme.ColorBox
+import utils.Global
 import utils.Prefs
 import utils.Tools
 import utils.Tools.formatToDuration
@@ -38,13 +40,15 @@ import utils.Tools.roundPlace
 
 @Composable
 fun PlayerBottomSheet(
+    currentHeight : Dp = 0.dp,
+    isOnBoard : Boolean= false,
     onClose: () -> Unit
 ) {
 
     val modalController = LocalRootController.current.findModalController()
 
     var showRepeatPopup by remember { mutableStateOf(false) }
-    var repeatModeChange by remember { mutableStateOf(Prefs.repeatMode) }
+    val repeatModeChange = Prefs.repeatModeChanged.observeAsState()
 
     var showSpeedPopup by remember { mutableStateOf(false) }
     var speedChange by remember { mutableStateOf("${((Prefs.playbackSpeed * 1.5) + 0.5).roundPlace(1)}x") }
@@ -55,7 +59,6 @@ fun PlayerBottomSheet(
             showRepeatPopup = false
         },
         callback = {
-            repeatModeChange = it
             showRepeatPopup = false
         }
     )
@@ -77,7 +80,13 @@ fun PlayerBottomSheet(
 
     var backgroundImageHeight by remember { mutableStateOf(0) }
 
-    Box(modifier = Modifier.fillMaxWidth()) {
+    val baseModifier = if (isOnBoard) {
+        Modifier.padding(12.dp).width(400.dp).clip(RoundedCornerShape(16.dp))
+    } else {
+        Modifier.width(400.dp)
+    }
+
+    Box(modifier = baseModifier) {
         SmoothImage(
             modifier = Modifier.fillMaxWidth().height(backgroundImageHeight.dp).blur(20.dp).alpha(0.4f),
             image = mediaItem.value.coverArt,
@@ -85,17 +94,21 @@ fun PlayerBottomSheet(
             contentScale = ContentScale.Crop
         )
         Column(Modifier.fillMaxWidth().onSizeChanged { backgroundImageHeight = it.height }, horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(
-                modifier = Modifier.height(38.dp).fillMaxWidth().clickable {
-                    onClose.invoke()
-                },
-                painter = painterResource("icons/arrow-down.svg"),
-                contentDescription = null,
-                tint = ColorBox.text.copy(0.7f)
-            )
+            if (!isOnBoard) {
+                Icon(
+                    modifier = Modifier.height(38.dp).fillMaxWidth().clickable {
+                        onClose.invoke()
+                    },
+                    painter = painterResource("icons/arrow-down.svg"),
+                    contentDescription = null,
+                    tint = ColorBox.text.copy(0.7f)
+                )
+            } else {
+                Spacer(Modifier.padding(top = 20.dp))
+            }
             Spacer(Modifier.padding(top = 12.dp))
             SmoothImage(
-                modifier = Modifier.size(230.dp).aspectRatio(1f).clip(RoundedCornerShape(16.dp)),
+                modifier = Modifier.size(if (!isOnBoard) 230.dp else 240.dp).aspectRatio(1f).clip(RoundedCornerShape(16.dp)),
                 fadeOnChange = true,
                 image = mediaItem.value.coverArt,
                 contentScale = ContentScale.Crop
@@ -133,7 +146,7 @@ fun PlayerBottomSheet(
             ) {
                 MyIconButton(
                     size = 40.dp,
-                    icon = Tools.getRepeatModeIconByType(repeatModeChange),
+                    icon = Tools.getRepeatModeIconByType(repeatModeChange.value),
                     background = ColorBox.text.copy(0.1f),
                     colorFilter = ColorBox.text,
                     contentPadding = 10.dp,
@@ -195,11 +208,11 @@ fun PlayerBottomSheet(
                 }
             }
             Row(
-                modifier = Modifier.animateContentSize().fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
-                    modifier = Modifier.animateContentSize().padding(20.dp).weight(1f).height(48.dp).clip(RoundedCornerShape(50))
+                    modifier = Modifier.padding(20.dp).weight(1f).height(48.dp).clip(RoundedCornerShape(50))
                         .background(ColorBox.text.copy(0.1f)),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -227,29 +240,32 @@ fun PlayerBottomSheet(
                     )
                     Spacer(Modifier.padding(6.dp))
                 }
-                Box(Modifier.size(48.dp)) {
-                    MyIconButton(
-                        background = ColorBox.text.copy(0.1f),
-                        icon = "icons/equalizer.svg",
-                        colorFilter = ColorBox.text.copy(0.8f),
-                        onClick = {
-                            modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
-                                EqualizerDialog {
-                                    modalController.popBackStack(null)
+                AnimatedVisibility(
+                    visible = currentHeight.value < Global.SIZE_HEIGHT_LARGE
+                ) {
+                    Box(Modifier.padding(end = 20.dp).size(48.dp)) {
+                        MyIconButton(
+                            background = ColorBox.text.copy(0.1f),
+                            icon = "icons/equalizer.svg",
+                            colorFilter = ColorBox.text.copy(0.8f),
+                            onClick = {
+                                modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
+                                    EqualizerDialog {
+                                        modalController.popBackStack(null)
+                                    }
                                 }
                             }
+                        )
+                        this@Row.AnimatedVisibility(
+                            modifier = Modifier.align(Alignment.TopEnd),
+                            visible = isEqEnable.value,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            CircleDot(Modifier.padding(3.dp).size(8.dp), color = Color.Green)
                         }
-                    )
-                    this@Row.AnimatedVisibility(
-                        modifier = Modifier.align(Alignment.TopEnd),
-                        visible = isEqEnable.value,
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-                        CircleDot(Modifier.padding(3.dp).size(8.dp), color = Color.Green)
                     }
                 }
-                Spacer(Modifier.padding(10.dp))
             }
         }
     }

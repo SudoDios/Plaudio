@@ -12,14 +12,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
+import androidx.compose.material.Switch
+import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
@@ -27,37 +29,107 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import components.CircleDot
-import components.MyIconButton
-import components.PlayAnimationView
-import components.SmoothImage
+import components.*
 import components.menu.AudioListPopup
 import core.CorePlayer
 import core.db.CoreDB
 import core.db.models.ModelAudio
 import dev.icerock.moko.mvvm.livedata.compose.observeAsState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import routing.dialogs.AudioInfoDialog
 import routing.dialogs.EditTagsDialog
+import routing.dialogs.PlayerBottomSheet
 import ru.alexgladkov.odyssey.compose.extensions.present
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
 import theme.ColorBox
+import utils.Global
+import utils.Prefs
 import utils.Tools.formatToDuration
 import utils.Tools.formatToSizeFile
+import utils.areaBlur
 
 @Composable
-fun Content(audioList: SnapshotStateList<ModelAudio>, onFav: (Int, Boolean) -> Unit, onEdited : (ModelAudio) -> Unit) {
-
-    val modalController = LocalRootController.current.findModalController()
-    var showListPopup by remember { mutableStateOf(Pair(false, ModelAudio())) }
+fun BoxWithConstraintsScope.Content(
+    drawerState: CustomOcState,
+    scope: CoroutineScope
+) {
 
     val visiblePlayer = CorePlayer.visiblePlayer.observeAsState()
     val isPlaying = CorePlayer.playPauseCallback.observeAsState()
     val playingMediaItem = CorePlayer.currentMediaItemCallback.observeAsState()
 
-    CorePlayer.audioList = ArrayList(audioList)
+    if (maxWidth.value > Global.SIZE_LARGE) {
+        if (drawerState.isOpen) {
+            scope.launch {
+                drawerState.close()
+            }
+        }
+    }
 
-    if (audioList.isEmpty()) {
+    Row(Modifier.fillMaxSize()) {
+        AnimatedVisibility(
+            visible = this@Content.maxWidth.value > Global.SIZE_LARGE
+        ) {
+            Drawer {
+
+            }
+        }
+        Row(Modifier.fillMaxSize()) {
+            Box(Modifier.weight(1f).fillMaxHeight()) {
+                Box(Modifier.fillMaxSize().areaBlur(size = Offset(this@Content.maxWidth.value, Global.APPBAR_HEIGHT.toFloat()), radius = 0f)) {
+                    ListView(
+                        visiblePlayer.value,
+                        isPlaying.value,
+                        this@Content.maxWidth.value.toInt(),
+                        playingMediaItem.value
+                    )
+                }
+                Appbar(
+                    this@Content.maxWidth.value < Global.SIZE_LARGE,
+                    drawerState,
+                    onSearchContent = {
+                        Global.Data.currentSearchKeyword.value = it
+                        Global.Data.searchOrFilter()
+                    },
+                    scope
+                )
+            }
+            AnimatedVisibility(
+                visible = visiblePlayer.value && this@Content.maxWidth.value > Global.SIZE_NORMAL
+            ) {
+                Column(Modifier.fillMaxHeight()) {
+                    PlayerBottomSheet(
+                        currentHeight = this@Content.maxHeight,
+                        isOnBoard = true
+                    ) {
+
+                    }
+                    AnimatedVisibility(
+                        visible = this@Content.maxHeight.value > Global.SIZE_HEIGHT_LARGE
+                    ) {
+                        EqualizerOnBoard()
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+@Composable
+private fun ListView (
+    visiblePlayer : Boolean,
+    isPlaying : Boolean,
+    maxWidth : Int,
+    playingMediaItem : ModelAudio
+) {
+
+    val modalController = LocalRootController.current.findModalController()
+    var showListPopup by remember { mutableStateOf(Pair(false, ModelAudio())) }
+
+    if (Global.Data.filteredAudioList.isEmpty()) {
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -78,78 +150,127 @@ fun Content(audioList: SnapshotStateList<ModelAudio>, onFav: (Int, Boolean) -> U
         }
     } else {
         LazyColumn(
+            modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 start = 6.dp,
                 end = 6.dp,
-                top = 6.dp,
-                bottom = if (visiblePlayer.value) 80.dp else 6.dp
+                top = (Global.APPBAR_HEIGHT + 6).dp,
+                bottom = if (visiblePlayer && maxWidth < Global.SIZE_NORMAL) 80.dp else 6.dp
             )
         ) {
-            items(audioList) {
-                AudioRow(it, playingMediaItem.value, isPlaying.value, visiblePlayer.value) {
+            items(Global.Data.filteredAudioList) {
+                AudioRow(it, playingMediaItem, isPlaying, visiblePlayer) {
                     showListPopup = Pair(true, it)
-                }
-            }
-        }
-        AudioListPopup(
-            show = showListPopup,
-            onDismissRequest = {
-                showListPopup = Pair(false, ModelAudio())
-            }
-        ) { index, modelAudio ->
-            showListPopup = Pair(false, modelAudio)
-            when (index) {
-                0 -> {
-                    CoreDB.Audios.removeFromFav(modelAudio.id)
-                    val indexFilter = audioList.indexOfFirst { it.id == modelAudio.id }
-                    audioList[indexFilter] = audioList[indexFilter].copy(isFav = false)
-                    onFav.invoke(modelAudio.id, false)
-                }
-
-                1 -> {
-                    CoreDB.Audios.addToFav(modelAudio.id)
-                    val indexFilter = audioList.indexOfFirst { it.id == modelAudio.id }
-                    audioList[indexFilter] = audioList[indexFilter].copy(isFav = true)
-                    onFav.invoke(modelAudio.id, true)
-                }
-
-                2 -> {
-                    //edit
-                    modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
-                        EditTagsDialog(
-                            modelAudio = modelAudio.copy(),
-                            closeClicked = {
-                                modalController.popBackStack(null)
-                            },
-                            onEdited = { editedAudio ->
-                                val indexFilter = audioList.indexOfFirst { it.id == modelAudio.id }
-                                audioList[indexFilter] = editedAudio
-                                if (playingMediaItem.value.id == editedAudio.id) {
-                                    CorePlayer.currentMediaItemCallback.value = editedAudio
-                                    CorePlayer.startPlay(editedAudio)
-                                }
-                                onEdited.invoke(editedAudio)
-                                modalController.popBackStack(null)
-                            }
-                        )
-                    }
-                }
-                3 -> {
-                    //info
-                    modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
-                        AudioInfoDialog(modelAudio) {
-                            modalController.popBackStack(null)
-                        }
-                    }
                 }
             }
         }
     }
 
+    AudioListPopup(
+        show = showListPopup,
+        onDismissRequest = {
+            showListPopup = Pair(false, ModelAudio())
+        }
+    ) { index, modelAudio ->
+        showListPopup = Pair(false, modelAudio)
+        when (index) {
+            0 -> {
+                CoreDB.Audios.removeFromFav(modelAudio.id)
+                val indexFilter = Global.Data.filteredAudioList.indexOfFirst { it.id == modelAudio.id }
+                Global.Data.filteredAudioList[indexFilter] = Global.Data.filteredAudioList[indexFilter].copy(isFav = false)
+                Global.Data.addOrRemoveFavorite(modelAudio.id, false)
+            }
+
+            1 -> {
+                CoreDB.Audios.addToFav(modelAudio.id)
+                val indexFilter = Global.Data.filteredAudioList.indexOfFirst { it.id == modelAudio.id }
+                Global.Data.filteredAudioList[indexFilter] = Global.Data.filteredAudioList[indexFilter].copy(isFav = true)
+                Global.Data.addOrRemoveFavorite(modelAudio.id, true)
+            }
+
+            2 -> {
+                //edit
+                modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
+                    EditTagsDialog(
+                        modelAudio = modelAudio.copy(),
+                        closeClicked = {
+                            modalController.popBackStack(null)
+                        },
+                        onEdited = { editedAudio ->
+                            val indexFilter = Global.Data.filteredAudioList.indexOfFirst { it.id == modelAudio.id }
+                            Global.Data.filteredAudioList[indexFilter] = editedAudio
+                            if (playingMediaItem.id == editedAudio.id) {
+                                CorePlayer.currentMediaItemCallback.value = editedAudio
+                                CorePlayer.startPlay(editedAudio)
+                            }
+                            Global.Data.editedAudio(editedAudio)
+                            modalController.popBackStack(null)
+                        }
+                    )
+                }
+            }
+
+            3 -> {
+                //info
+                modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
+                    AudioInfoDialog(modelAudio) {
+                        modalController.popBackStack(null)
+                    }
+                }
+            }
+        }
+    }
 }
 
 @Composable
-fun AudioRow(
+private fun EqualizerOnBoard () {
+
+    var switchTurnOnOff by remember { mutableStateOf(Prefs.equalizerOn) }
+    var currentPresetName by remember { mutableStateOf(Prefs.equalizerPreset) }
+
+    Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp).width(400.dp).clip(RoundedCornerShape(16.dp)).background(ColorBox.card)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().height(56.dp).background(color = ColorBox.primaryDark.copy(0.5f)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.padding(start = 12.dp).weight(1f),
+                text = "Equalizer",
+                color = ColorBox.text.copy(0.8f),
+                fontSize = 18.sp
+            )
+            Switch(
+                modifier = Modifier.padding(end = 6.dp),
+                checked = switchTurnOnOff,
+                onCheckedChange = {
+                    switchTurnOnOff = it
+                    if (switchTurnOnOff) {
+                        CorePlayer.turnOnEqualizer(currentPresetName)
+                    } else {
+                        CorePlayer.turnOffEqualizer()
+                    }
+                },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = ColorBox.primary,
+                    uncheckedThumbColor = ColorBox.primary.copy(0.6f),
+                    uncheckedTrackColor = ColorBox.primary,
+                    uncheckedTrackAlpha = 0.1f
+                )
+            )
+        }
+        Spacer(Modifier.padding(10.dp))
+        EqualizerLayout(
+            switchTurnOnOff,
+            currentPresetName,
+            switchedPreset = {
+                currentPresetName = it
+            }
+        )
+    }
+}
+
+@Composable
+private fun AudioRow(
     modelAudio: ModelAudio,
     playingAudio: ModelAudio,
     isPlaying: Boolean,
