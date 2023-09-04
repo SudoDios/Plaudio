@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
+import androidx.compose.ui.window.PopupProperties
 import androidx.compose.ui.window.rememberCursorPositionProvider
 
 @Suppress("ModifierParameter")
@@ -107,7 +108,7 @@ private fun OpenDropdownMenu(
     var focusManager: FocusManager? by mutableStateOf(null)
     var inputModeManager: InputModeManager? by mutableStateOf(null)
     Popup(
-        focusable = focusable,
+        properties = PopupProperties(focusable = focusable),
         onDismissRequest = onDismissRequest,
         popupPositionProvider = popupPositionProvider,
     ) {
@@ -145,7 +146,7 @@ fun CustomDropdownMenu(
                     popupContentSize: IntSize
                 ): IntOffset = IntOffset.Zero
             },
-            focusable = true,
+            properties = PopupProperties(focusable = true),
             onDismissRequest = {},
         ) {
             Box(
