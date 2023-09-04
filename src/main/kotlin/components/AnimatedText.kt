@@ -9,7 +9,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun AnimatedText(
     modifier: Modifier,
@@ -24,7 +23,7 @@ fun AnimatedText(
     AnimatedContent(
         targetState = text,
         transitionSpec = {
-            (slideInVertically { height -> height } + fadeIn() with
+            (slideInVertically { height -> height } + fadeIn() togetherWith
                     slideOutVertically { height -> -height } + fadeOut()).using(SizeTransform(false))
         }
     ) {
