@@ -2,7 +2,7 @@ package core.db
 
 import core.db.models.ModelAudio
 import core.db.models.ModelFolder
-import utils.Tools
+import utils.Global
 import java.sql.Connection
 import java.sql.DriverManager
 
@@ -12,7 +12,7 @@ object CoreDB {
 
     //config
     fun init () {
-        val dbFile = "${Tools.dbPath}/plaudio.db"
+        val dbFile = "${Global.dbPath}/plaudio.db"
         connection = DriverManager.getConnection("jdbc:sqlite:$dbFile")
         createTables()
     }
@@ -120,6 +120,7 @@ object CoreDB {
         }
 
         fun read () : ArrayList<ModelAudio> {
+            println("Rad")
             val statement = connection.createStatement()
             val query = statement.executeQuery("select * from audios order by name asc")
             val arrayOut = ArrayList<ModelAudio>()
