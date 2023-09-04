@@ -8,7 +8,7 @@ import androidx.compose.ui.unit.sp
 
 object Fonts {
 
-    private val varela = FontFamily(
+    val varela = FontFamily(
         Font(
             resource = "font/varela-round-regular.ttf"
         )
