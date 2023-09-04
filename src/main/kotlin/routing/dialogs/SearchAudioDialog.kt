@@ -1,6 +1,5 @@
 package routing.dialogs
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
@@ -17,10 +16,9 @@ import core.db.models.ModelAudio
 import core.db.models.ModelFolder
 import core.extractor.FolderWalker
 import theme.ColorBox
-import utils.Tools
+import utils.Global
 import java.io.File
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SearchAudioDialog(onFinished : (audios: SnapshotStateList<ModelAudio>, folders: SnapshotStateList<ModelFolder>) -> Unit) {
 
@@ -38,20 +36,20 @@ fun SearchAudioDialog(onFinished : (audios: SnapshotStateList<ModelAudio>, folde
             override fun onFinished(audios: ArrayList<ModelAudio>, folders: ArrayList<ModelFolder>) {
                 onFinished.invoke(SnapshotStateList<ModelAudio>().apply { addAll(audios) }, SnapshotStateList<ModelFolder>().apply { addAll(folders) })
             }
-        }).findAudios(File(Tools.userHome))
+        }).findAudios(File(Global.userHome))
     }
 
     Column(
-        modifier = Modifier.width(290.dp).background(ColorBox.primaryDark2),
+        modifier = Modifier.width(320.dp).background(ColorBox.primaryDark2),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SearchAnimIcon(Modifier.padding(top = 30.dp).size(60.dp))
+        SearchAnimIcon(Modifier.padding(top = 30.dp).size(90.dp))
         Text(
-            modifier = Modifier.padding(top = 20.dp),
+            modifier = Modifier.padding(top = 25.dp),
             text = "Searching for audios ...",
             color = ColorBox.text,
-            fontSize = 15.sp
+            fontSize = 16.sp
         )
         Row(
             modifier = Modifier.padding(top = 16.dp, bottom = 12.dp),
