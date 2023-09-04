@@ -33,8 +33,8 @@ fun MyIconButton(
     onClick: () -> Unit,
 ) {
     Box(
-        modifier = Modifier.size(size)
-            .padding(padding)
+        modifier = Modifier.padding(padding)
+            .size(size)
             .rotate(rotate)
             .clip(RoundedCornerShape(50))
             .background(background)
