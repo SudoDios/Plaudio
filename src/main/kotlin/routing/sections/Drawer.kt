@@ -37,6 +37,7 @@ import theme.ColorBox
 import theme.Fonts
 import ui.components.DayNightAnimationIcon
 import utils.Global
+import utils.clickable
 
 @Composable
 fun Drawer(
@@ -95,7 +96,7 @@ fun Drawer(
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().align(Alignment.BottomCenter).background(ColorBox.card)) {
+        Row(Modifier.fillMaxWidth().align(Alignment.BottomCenter).background(ColorBox.card).clickable()) {
             Row(
                 Modifier
                     .padding(12.dp)
