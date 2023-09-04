@@ -20,37 +20,46 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import components.AnimatedText
-import components.CustomSlider
-import components.PlayAnimationView
-import components.SmoothImage
+import components.*
+import components.menu.RepeatModePopup
 import core.CorePlayer
 import dev.icerock.moko.mvvm.livedata.compose.observeAsState
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import theme.ColorBox
+import utils.Global
+import utils.Prefs
+import utils.Tools
 import utils.Tools.formatToDuration
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun BoxScope.CompactPlayer(
-    onClicked : () -> Unit
+fun BoxWithConstraintsScope.CompactPlayer(
+    onClicked : () -> Unit,
+    onForceHide : () -> Unit
 ) {
 
     val modalController = LocalRootController.current.findModalController()
 
     val visible = CorePlayer.visiblePlayer.observeAsState()
-    val mediaItem = CorePlayer.currentMediaItemCallback.observeAsState()
-    val isPlaying = CorePlayer.playPauseCallback.observeAsState()
-    val currentProgress = CorePlayer.progressCallback.observeAsState()
-
-    var progressSeekValue by remember { mutableStateOf(0f) }
-    var isSeeking by remember { mutableStateOf(false) }
+    var showRepeatPopup by remember { mutableStateOf(false) }
+    val repeatModeChange = Prefs.repeatModeChanged.observeAsState()
 
     if (!visible.value) modalController.popBackStack(null)
+    if (maxWidth.value.toInt() > Global.SIZE_NORMAL) onForceHide.invoke()
+
+    RepeatModePopup(
+        show = showRepeatPopup,
+        onDismissRequest = {
+            showRepeatPopup = false
+        },
+        callback = {
+            showRepeatPopup = false
+        }
+    )
 
     AnimatedVisibility(
         modifier = Modifier.align(Alignment.BottomCenter),
-        visible = visible.value,
+        visible = visible.value && (maxWidth.value.toInt() < Global.SIZE_NORMAL),
         enter = slideInVertically(initialOffsetY = {
             it
         }),
@@ -58,6 +67,14 @@ fun BoxScope.CompactPlayer(
             it
         })
     ) {
+
+        val mediaItem = CorePlayer.currentMediaItemCallback.observeAsState()
+        val isPlaying = CorePlayer.playPauseCallback.observeAsState()
+        val currentProgress = CorePlayer.progressCallback.observeAsState()
+
+        var progressSeekValue by remember { mutableStateOf(0f) }
+        var isSeeking by remember { mutableStateOf(false) }
+
         Box(modifier = Modifier
             .fillMaxWidth()
             .height(74.dp)
@@ -108,19 +125,55 @@ fun BoxScope.CompactPlayer(
                         fontSize = 11.sp
                     )
                 }
+                MyIconButton(
+                    size = 38.dp,
+                    icon = "icons/skip-previous.svg",
+                    background = ColorBox.text.copy(0.1f),
+                    colorFilter = ColorBox.text,
+                    contentPadding = 10.dp,
+                    onClick = {
+                        CorePlayer.previous()
+                    }
+                )
                 Box(
                     modifier = Modifier
-                        .padding(end = 8.dp)
-                        .size(44.dp)
+                        .padding(start = 10.dp,end = 10.dp)
+                        .size(48.dp)
                         .clip(RoundedCornerShape(50))
                         .background(ColorBox.text.copy(0.1f)).clickable {
                             CorePlayer.autoPlayPause()
                         }, contentAlignment = Alignment.Center
                 ) {
                     PlayAnimationView(
-                        modifier = Modifier.size(34.dp),
+                        modifier = Modifier.size(36.dp),
                         color = ColorBox.primary,
                         isPlaying.value
+                    )
+                }
+                MyIconButton(
+                    size = 38.dp,
+                    padding = PaddingValues(end = 10.dp),
+                    icon = "icons/skip-next.svg",
+                    background = ColorBox.text.copy(0.1f),
+                    colorFilter = ColorBox.text,
+                    contentPadding = 10.dp,
+                    onClick = {
+                        CorePlayer.next()
+                    }
+                )
+                AnimatedVisibility(
+                    visible = this@CompactPlayer.maxWidth.value.toInt() > Global.SIZE_SMALL
+                ) {
+                    MyIconButton(
+                        size = 38.dp,
+                        padding = PaddingValues(end = 10.dp),
+                        icon = Tools.getRepeatModeIconByType(repeatModeChange.value),
+                        background = ColorBox.text.copy(0.1f),
+                        colorFilter = ColorBox.text,
+                        contentPadding = 10.dp,
+                        onClick = {
+                            showRepeatPopup = true
+                        }
                     )
                 }
             }
