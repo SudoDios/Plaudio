@@ -1,6 +1,5 @@
 package components
 
-import CenterState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -19,6 +18,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import theme.ColorBox
+import utils.Global
 
 @Composable
 fun CustomTextField(
@@ -52,7 +52,7 @@ fun CustomTextField(
         value = value,
         onValueChange =onValueChange,
         modifier = modifier.onFocusChanged {
-            CenterState.hasAnyTextFieldFocus = it.hasFocus
+            Global.Data.hasAnyTextFieldFocus = it.hasFocus
         },
         enabled = enabled,
         readOnly = readOnly,
