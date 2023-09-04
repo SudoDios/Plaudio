@@ -228,9 +228,9 @@ private fun EqualizerOnBoard () {
     var switchTurnOnOff by remember { mutableStateOf(Prefs.equalizerOn) }
     var currentPresetName by remember { mutableStateOf(Prefs.equalizerPreset) }
 
-    Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp).width(400.dp).clip(RoundedCornerShape(16.dp)).background(ColorBox.card)) {
+    Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp).width(400.dp).clip(RoundedCornerShape(16.dp)).background(ColorBox.primaryDark2)) {
         Row(
-            modifier = Modifier.fillMaxWidth().height(56.dp).background(color = ColorBox.primaryDark.copy(0.5f)),
+            modifier = Modifier.fillMaxWidth().height(56.dp).background(color = ColorBox.primaryDark2),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(

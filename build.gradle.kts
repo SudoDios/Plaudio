@@ -25,7 +25,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("uk.co.caprica:vlcj:4.8.2")
 
-    implementation("org.xerial:sqlite-jdbc:3.42.0.0")
+    implementation("org.xerial:sqlite-jdbc:3.43.0.0")
 }
 
 compose.desktop {
@@ -35,7 +35,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb,TargetFormat.Exe)
             modules("java.sql")
             packageName = "Plaudio"
-            packageVersion = "1.1.1"
+            packageVersion = "1.2.1"
             val iconsRoot = project.file("src/main/resources")
             linux {
                 iconFile.set(iconsRoot.resolve("icons/app_icon.png"))
@@ -43,6 +43,9 @@ compose.desktop {
             windows {
                 iconFile.set(iconsRoot.resolve("icons/app_icon.ico"))
             }
+        }
+        buildTypes.release.proguard {
+            configurationFiles.from(project.file("rules.pro").absolutePath)
         }
     }
 }
