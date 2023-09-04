@@ -9,15 +9,15 @@ import kotlinx.coroutines.launch
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.base.MediaPlayerEventAdapter
 import uk.co.caprica.vlcj.player.component.AudioPlayerComponent
+import utils.Global
 import utils.Prefs
 import utils.Tools
 
 object CorePlayer {
 
-    lateinit var audioPlayerComponent: AudioPlayerComponent
-    var audioList = ArrayList<ModelAudio>()
+    private lateinit var audioPlayerComponent: AudioPlayerComponent
 
-    var listIndexCallback : MutableLiveData<Int?> = MutableLiveData(null)
+    private var listIndexCallback : MutableLiveData<Int?> = MutableLiveData(null)
     var visiblePlayer = MutableLiveData(false)
     var currentMediaItemCallback = MutableLiveData(ModelAudio())
     var progressCallback = MutableLiveData(0f)
@@ -192,19 +192,19 @@ object CorePlayer {
     }
 
     fun next () {
-        if (audioList.isNotEmpty()) {
-            val currentIndex = audioList.indexOfFirst { it.id ==  currentMediaItemCallback.value.id }
-            if (currentIndex == -1 || currentIndex == (audioList.size - 1)) {
-                startPlay(audioList[0],0)
+        if (Global.Data.filteredAudioList.isNotEmpty()) {
+            val currentIndex = Global.Data.filteredAudioList.indexOfFirst { it.id ==  currentMediaItemCallback.value.id }
+            if (currentIndex == -1 || currentIndex == (Global.Data.filteredAudioList.size - 1)) {
+                startPlay(Global.Data.filteredAudioList[0],0)
             } else {
-                startPlay(audioList[currentIndex+1],currentIndex+1)
+                startPlay(Global.Data.filteredAudioList[currentIndex+1],currentIndex+1)
             }
         }
     }
 
     private fun shuffle () {
-        if (audioList.isNotEmpty()) {
-            val shuffleItem = audioList.random()
+        if (Global.Data.filteredAudioList.isNotEmpty()) {
+            val shuffleItem = Global.Data.filteredAudioList.random()
             startPlay(shuffleItem,null)
         }
     }
@@ -213,15 +213,15 @@ object CorePlayer {
         if (audioPlayerComponent.mediaPlayer().status().time() > 5000) {
             seekTo(0f)
         } else {
-            if (audioList.isNotEmpty()) {
-                val currentIndex = audioList.indexOfFirst { it.id == currentMediaItemCallback.value.id }
+            if (Global.Data.filteredAudioList.isNotEmpty()) {
+                val currentIndex = Global.Data.filteredAudioList.indexOfFirst { it.id == currentMediaItemCallback.value.id }
                 if (currentIndex == -1) {
-                    startPlay(audioList[0],0)
+                    startPlay(Global.Data.filteredAudioList[0],0)
                 } else {
                     if (currentIndex == 0) {
-                        startPlay(audioList.last(), audioList.size)
+                        startPlay(Global.Data.filteredAudioList.last(), Global.Data.filteredAudioList.size)
                     } else {
-                        startPlay(audioList[currentIndex-1],currentIndex-1)
+                        startPlay(Global.Data.filteredAudioList[currentIndex-1],currentIndex-1)
                     }
                 }
             }

@@ -2,7 +2,6 @@ package utils
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import core.CorePlayer
 import core.db.CoreDB
 import core.db.models.ModelAudio
 import core.db.models.ModelFolder
@@ -24,7 +23,7 @@ object Global {
 
         var hasAnyTextFieldFocus = false
 
-        val audioList = ArrayList<ModelAudio>().apply {
+        private val audioList = ArrayList<ModelAudio>().apply {
             addAll(CoreDB.Audios.read())
         }
         val filteredAudioList = SnapshotStateList<ModelAudio>().apply {
@@ -53,7 +52,6 @@ object Global {
                     else -> filteredAudioList.addAll(audioList.filter { it.folder == currentFolder.value.path })
                 }
             }
-            CorePlayer.audioList = ArrayList(filteredAudioList)
         }
 
         /*favorite*/

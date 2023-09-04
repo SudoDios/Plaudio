@@ -120,7 +120,6 @@ object CoreDB {
         }
 
         fun read () : ArrayList<ModelAudio> {
-            println("Rad")
             val statement = connection.createStatement()
             val query = statement.executeQuery("select * from audios order by name asc")
             val arrayOut = ArrayList<ModelAudio>()
