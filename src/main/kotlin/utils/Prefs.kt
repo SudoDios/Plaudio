@@ -1,5 +1,6 @@
 package utils
 
+import dev.icerock.moko.mvvm.livedata.MutableLiveData
 import java.util.prefs.Preferences
 
 object Prefs {
@@ -13,11 +14,14 @@ object Prefs {
 
     var playbackSpeed : Float = 0.33f
 
+
+    var repeatModeChanged = MutableLiveData(repeatMode)
     var repeatMode : Int
         get() {
             return preferences.getInt("repeatMode",REPEAT_MODE_ALL)
         }
         set(value) {
+            repeatModeChanged.value = value
             preferences.putInt("repeatMode",value)
         }
 
