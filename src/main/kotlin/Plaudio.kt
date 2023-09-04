@@ -1,7 +1,5 @@
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
@@ -15,43 +13,22 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import core.CorePlayer
 import core.db.CoreDB
-import core.db.models.ModelAudio
-import core.db.models.ModelFolder
 import routing.routingGraph
 import ru.alexgladkov.odyssey.compose.setup.OdysseyConfiguration
 import ru.alexgladkov.odyssey.compose.setup.setNavigationContent
 import theme.ColorBox
 import theme.Fonts
+import utils.Global
 import utils.Prefs
-import utils.Tools
 import java.awt.Dimension
 import java.io.File
 import java.util.logging.LogManager
 
-object CenterState {
-
-    var hasAnyTextFieldFocus = false
-
-    val audioList = ArrayList<ModelAudio>().apply {
-        addAll(CoreDB.Audios.read())
-    }
-    val filteredAudioList = SnapshotStateList<ModelAudio>().apply {
-        addAll(audioList)
-    }
-    val folderList = SnapshotStateList<ModelFolder>().apply {
-        addAll(CoreDB.Folders.read())
-    }
-
-    /*states*/
-    var currentFolder = mutableStateOf(ModelFolder(childCunt = audioList.size))
-
-}
-
 @Composable
 fun App() {
     //init
-    File(Tools.coverPaths).mkdirs()
-    File(Tools.dbPath).mkdirs()
+    File(Global.coverPaths).mkdirs()
+    File(Global.dbPath).mkdirs()
     CoreDB.init()
     CorePlayer.init()
 
@@ -64,7 +41,9 @@ fun App() {
             primary = ColorBox.primary
         )
     ) {
-        setNavigationContent(OdysseyConfiguration(backgroundColor = if (Prefs.isDarkMode) Color.Black else Color.White), onApplicationFinish = {}) {
+        setNavigationContent(
+            OdysseyConfiguration(backgroundColor = if (Prefs.isDarkMode) Color.Black else Color.White),
+            onApplicationFinish = {}) {
             routingGraph()
         }
     }
@@ -78,11 +57,11 @@ fun main() = application {
         icon = painterResource("icons/app_icon.png"),
         onCloseRequest = ::exitApplication,
         title = "Plaudio",
-        state = WindowState(size = DpSize(400.dp,645.dp)),
+        state = WindowState(size = DpSize(600.dp, 700.dp)),
         resizable = true,
         onKeyEvent = {
-            if (!CenterState.hasAnyTextFieldFocus) {
-                when  {
+            if (!Global.Data.hasAnyTextFieldFocus) {
+                when {
                     (it.key == Key.Spacebar && it.type == KeyEventType.KeyUp) -> {
                         if (CorePlayer.isPlaying) {
                             CorePlayer.pause()
@@ -91,18 +70,22 @@ fun main() = application {
                         }
                         return@Window true
                     }
+
                     (it.key == Key.DirectionRight && it.type == KeyEventType.KeyUp) -> {
                         CorePlayer.forward(15000)
                         return@Window true
                     }
+
                     (it.key == Key.DirectionLeft && it.type == KeyEventType.KeyUp) -> {
                         CorePlayer.backward(10000)
                         return@Window true
                     }
+
                     (it.key == Key.DirectionUp && it.type == KeyEventType.KeyUp) -> {
                         CorePlayer.incVolume()
                         return@Window true
                     }
+
                     (it.key == Key.DirectionDown && it.type == KeyEventType.KeyUp) -> {
                         CorePlayer.decVolume()
                         return@Window true
@@ -114,7 +97,7 @@ fun main() = application {
             false
         }
     ) {
-        window.minimumSize = Dimension(400,645)
+        window.minimumSize = Dimension(600, 671)
         App()
     }
 }
