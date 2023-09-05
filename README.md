@@ -13,16 +13,14 @@
 </p>
 
 
-### Screenshots
+### Screenshot
 
-|                                                  |                                                  |                                                       |
-|--------------------------------------------------|--------------------------------------------------|-------------------------------------------------------|
-| <img src="assets/screenshot1.png" alt="linux" /> | <img src="assets/screenshot2.png" alt="linux" /> | <img src="assets/screenshot3.png" alt="linux" />      |
-| <img src="assets/screenshot4.png" alt="linux" /> | <img src="assets/screenshot5.png" alt="linux" /> | <img src="assets/screenshot_light.png" alt="linux" /> |
+<img src="assets/main_screenshot.jpeg" style="border-radius: 16px" alt="openjdk" />
 
 ### Features
 
 > - Beauty design
+> - Responsive
 > - Searching all your audios in (MP3,M4A,OGG) Formats
 > - Fetching all folders contains audios
 > - You can edit audios (IDV3) tags
@@ -38,8 +36,8 @@
 >      - install downloaded vlc exe file
 > 
 > 2. Download Plaudio
->     - for linux (**DEB** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.1.1/plaudio_1.1.1_amd64.deb)
->     - for windows (**EXE** installer) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.1.1/plaudio_1.1.1_installer_win.exe)
+>     - for linux (**DEB** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.2.1/plaudio_1.2.1_amd64.deb)
+>     - for windows (**EXE** installer) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.2.1/plaudio_1.2.1_installer_win.exe)
 > 
 > `Tested on Ubuntu 18-20 & Windows 10-11`
 >
@@ -56,7 +54,7 @@
 - [ ] TrayIcon
 - [ ] ReSync to merge new files (& folders)
 - [ ] More tag fields edit
-- [ ] Make resizable window
+- [x] Make resizable window
 - [ ] Playlist feature
 - [x] Light Theme
 
