@@ -57,6 +57,7 @@
 - [x] Make resizable window
 - [ ] Playlist feature
 - [x] Light Theme
+- [ ] Youtube music downloader
 
 ### Libraries
 
