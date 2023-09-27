@@ -22,13 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import components.CustomOcState
 import components.HamburgerMenu
-import components.menu.HomeAppbarPopup
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import routing.dialogs.AboutDialog
-import ru.alexgladkov.odyssey.compose.extensions.present
-import ru.alexgladkov.odyssey.compose.local.LocalRootController
-import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
 import theme.ColorBox
 import utils.Global
 import utils.clickable
@@ -40,10 +35,6 @@ fun Appbar(
     onSearchContent: (String) -> Unit,
     scope: CoroutineScope,
 ) {
-
-    val modalController = LocalRootController.current.findModalController()
-    var showAppbarMenu by remember { mutableStateOf(false) }
-
 
     Column(Modifier.height(Global.APPBAR_HEIGHT.dp).clickable().fillMaxWidth().background(ColorBox.primaryDark.copy(0.4f)), verticalArrangement = Arrangement.Center) {
         Row(Modifier.padding(start = 16.dp, top = 8.dp,end = 8.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -83,34 +74,6 @@ fun Appbar(
             fontSize = 14.sp
         )
     }
-
-    HomeAppbarPopup(
-        show = showAppbarMenu,
-        onDismissRequest = {
-            showAppbarMenu = false
-        },
-        callback = {
-            when (it) {
-                0 -> {
-                    ColorBox.switchDarkLight()
-                }
-
-                1 -> {
-
-                }
-
-                2 -> {
-                    modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
-                        AboutDialog {
-                            modalController.popBackStack(null)
-                        }
-                    }
-                }
-            }
-            showAppbarMenu = false
-        }
-    )
-
 }
 
 
