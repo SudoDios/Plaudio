@@ -19,7 +19,7 @@ import kotlin.math.pow
 
 object Tools {
 
-    fun getRandomString(length: Int) : String {
+    private fun getRandomString(length: Int = 12) : String {
         val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
         return (1..length)
             .map { allowedChars.random() }
@@ -120,7 +120,7 @@ object Tools {
 
     fun writeThumbImage(array: ByteArray,mimeType : String) : String? {
         val mime = if (mimeType.contains("/")) mimeType.substringAfterLast("/") else mimeType
-        val fileSave = File("${Global.coverPaths}/${getRandomString(12)}.$mime")
+        val fileSave = File("${Global.coverPaths}/${getRandomString()}.$mime")
         fileSave.createNewFile()
         return try {
             val stream = FileOutputStream(fileSave.absolutePath)
