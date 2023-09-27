@@ -36,6 +36,7 @@ fun SearchAudioDialog(onFinished: () -> Unit) {
     var albumCount by remember { mutableStateOf(0) }
     var artistCount by remember { mutableStateOf(0) }
 
+    var searchFolderCount by remember { mutableStateOf(0) }
     var isSearching by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -49,6 +50,9 @@ fun SearchAudioDialog(onFinished: () -> Unit) {
             override fun onFinished() {
                 onFinished.invoke()
                 Prefs.isFirstInitialized = true
+            }
+            override fun onCountingFolder(count: Int) {
+                searchFolderCount = count
             }
         }
     }
@@ -110,6 +114,11 @@ fun SearchAudioDialog(onFinished: () -> Unit) {
             visible = isSearching
         ) {
             Column(modifier = Modifier.padding(bottom = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "Searched $searchFolderCount folders",
+                    color = ColorBox.text.copy(0.8f),
+                    fontSize = 13.sp
+                )
                 Row(Modifier.padding(top = 16.dp, start = 20.dp, end = 20.dp).fillMaxWidth()) {
                     FindItem(
                         icon = "icons/folder.svg",
