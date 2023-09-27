@@ -15,7 +15,7 @@
 
 ### Screenshot
 
-<img src="assets/main_screenshot.jpeg" style="border-radius: 16px" alt="openjdk" />
+<img src="assets/main_screenshot.png" style="border-radius: 16px" alt="openjdk" />
 
 ### Features
 
