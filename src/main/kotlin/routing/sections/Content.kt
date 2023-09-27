@@ -1,19 +1,18 @@
 package routing.sections
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
-import androidx.compose.material.Switch
-import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,7 +28,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import components.*
+import components.CustomOcState
+import components.MyIconButton
+import components.PlayAnimationView
+import components.SmoothImage
 import components.menu.AudioListPopup
 import core.CorePlayer
 import core.db.CoreDB
@@ -45,9 +47,7 @@ import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
 import theme.ColorBox
 import utils.Global
-import utils.Prefs
 import utils.Tools.formatToDuration
-import utils.Tools.formatToSizeFile
 import utils.areaBlur
 
 @Composable
@@ -78,9 +78,15 @@ fun BoxWithConstraintsScope.Content(
         }
         Row(Modifier.fillMaxSize()) {
             Box(Modifier.weight(1f).fillMaxHeight()) {
-                Box(Modifier.fillMaxSize().areaBlur(size = Offset(this@Content.maxWidth.value, Global.APPBAR_HEIGHT.toFloat()), radius = 0f)) {
+                BoxWithConstraints(
+                    Modifier.fillMaxSize().areaBlur(
+                        size = Offset(this@Content.maxWidth.value, Global.APPBAR_HEIGHT.toFloat()),
+                        radius = 0f
+                    )
+                ) {
                     ListView(
                         visiblePlayer.value,
+                        showAlbumName = maxWidth > 700.dp,
                         isPlaying.value,
                         this@Content.maxWidth.value.toInt(),
                         playingMediaItem.value
@@ -101,15 +107,15 @@ fun BoxWithConstraintsScope.Content(
             ) {
                 Column(Modifier.fillMaxHeight()) {
                     PlayerBottomSheet(
-                        currentHeight = this@Content.maxHeight,
                         isOnBoard = true
                     ) {
 
                     }
-                    AnimatedVisibility(
-                        visible = this@Content.maxHeight.value > Global.SIZE_HEIGHT_LARGE
-                    ) {
-                        EqualizerOnBoard()
+                    if (this@Content.maxHeight.value > Global.SIZE_HEIGHT_LARGE) {
+                        MostPlaySection(
+                            playingMediaItem.value,
+                            visiblePlayer.value
+                        )
                     }
                 }
             }
@@ -119,11 +125,122 @@ fun BoxWithConstraintsScope.Content(
 }
 
 @Composable
-private fun ListView (
-    visiblePlayer : Boolean,
-    isPlaying : Boolean,
-    maxWidth : Int,
-    playingMediaItem : ModelAudio
+private fun ColumnScope.MostPlaySection(
+    playingAudio: ModelAudio,
+    active: Boolean,
+) {
+
+    val scrollState = rememberLazyListState()
+
+    Column(
+        Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp).width(400.dp)
+            .shadow(4.dp, shape = RoundedCornerShape(16.dp)).clip(RoundedCornerShape(16.dp))
+            .background(ColorBox.primaryDark2).weight(1f)
+    ) {
+        Text(
+            modifier = Modifier.padding(16.dp),
+            text = "You Most Played",
+            color = ColorBox.text.copy(0.8f),
+            fontSize = 16.sp
+        )
+        if (Global.Data.mostPlayedAudios.isEmpty()) {
+            Column(
+                Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    modifier = Modifier.padding(bottom = 16.dp).size(60.dp),
+                    painter = painterResource("icons/music-note.svg"),
+                    contentDescription = null,
+                    tint = ColorBox.primary.copy(0.7f)
+                )
+                Text(
+                    text = "No Item Found",
+                    color = ColorBox.text.copy(0.7f),
+                    fontSize = 13.sp
+                )
+            }
+        } else {
+            Box(Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = scrollState,
+                    contentPadding = PaddingValues(start = 8.dp, end = 8.dp, bottom = 8.dp)
+                ) {
+                    items(Global.Data.mostPlayedAudios) {
+                        MostPlayItem(playingAudio,active,it)
+                    }
+                }
+                VerticalScrollbar(
+                    modifier = Modifier.align(Alignment.CenterEnd).fillMaxHeight(),
+                    adapter = rememberScrollbarAdapter(scrollState),
+                    style = LocalScrollbarStyle.current.copy(
+                        thickness = 6.dp,
+                        hoverColor = ColorBox.text.copy(0.6f),
+                        unhoverColor = ColorBox.text.copy(0.1f)
+                    )
+                )
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun MostPlayItem(
+    playingAudio: ModelAudio,
+    active: Boolean,
+    modelAudio: ModelAudio
+) {
+
+    val play = ((playingAudio.id == modelAudio.id) && active)
+    val bgColor = animateColorAsState(if (play) ColorBox.primary.copy(0.1f) else Color.Transparent)
+
+    Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            modifier = Modifier.padding(start = 8.dp,end = 8.dp),
+            text = modelAudio.playCount.toString(),
+            color = ColorBox.text.copy(0.8f),
+            fontSize = 12.sp
+        )
+        Row(
+            Modifier.padding(5.dp).fillMaxWidth().clip(RoundedCornerShape(50)).background(bgColor.value).clickable {
+                CorePlayer.startPlay(modelAudio)
+            },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            SmoothImage(
+                modifier = Modifier.padding(4.dp).size(44.dp).clip(RoundedCornerShape(50)),
+                placeHolder = null,
+                image = modelAudio.coverArt,
+                contentScale = ContentScale.Crop
+            )
+            Text(
+                modifier = Modifier.padding(start = 6.dp).weight(1f),
+                text = modelAudio.name,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                color = ColorBox.text.copy(0.8f),
+                fontSize = 13.sp
+            )
+            Text(
+                modifier = Modifier.padding(start = 8.dp,end = 12.dp),
+                text = modelAudio.duration.formatToDuration(),
+                color = ColorBox.text.copy(0.7f),
+                fontSize = 12.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun ListView(
+    visiblePlayer: Boolean,
+    showAlbumName: Boolean,
+    isPlaying: Boolean,
+    maxWidth: Int,
+    playingMediaItem: ModelAudio
 ) {
 
     val modalController = LocalRootController.current.findModalController()
@@ -159,7 +276,7 @@ private fun ListView (
             )
         ) {
             items(Global.Data.filteredAudioList) {
-                AudioRow(it, playingMediaItem, isPlaying, visiblePlayer) {
+                AudioRow(it, playingMediaItem, showAlbumName, isPlaying, visiblePlayer) {
                     showListPopup = Pair(true, it)
                 }
             }
@@ -177,14 +294,16 @@ private fun ListView (
             0 -> {
                 CoreDB.Audios.removeFromFav(modelAudio.id)
                 val indexFilter = Global.Data.filteredAudioList.indexOfFirst { it.id == modelAudio.id }
-                Global.Data.filteredAudioList[indexFilter] = Global.Data.filteredAudioList[indexFilter].copy(isFav = false)
+                Global.Data.filteredAudioList[indexFilter] =
+                    Global.Data.filteredAudioList[indexFilter].copy(isFav = false)
                 Global.Data.addOrRemoveFavorite(modelAudio.id, false)
             }
 
             1 -> {
                 CoreDB.Audios.addToFav(modelAudio.id)
                 val indexFilter = Global.Data.filteredAudioList.indexOfFirst { it.id == modelAudio.id }
-                Global.Data.filteredAudioList[indexFilter] = Global.Data.filteredAudioList[indexFilter].copy(isFav = true)
+                Global.Data.filteredAudioList[indexFilter] =
+                    Global.Data.filteredAudioList[indexFilter].copy(isFav = true)
                 Global.Data.addOrRemoveFavorite(modelAudio.id, true)
             }
 
@@ -223,56 +342,10 @@ private fun ListView (
 }
 
 @Composable
-private fun EqualizerOnBoard () {
-
-    var switchTurnOnOff by remember { mutableStateOf(Prefs.equalizerOn) }
-    var currentPresetName by remember { mutableStateOf(Prefs.equalizerPreset) }
-
-    Column(Modifier.padding(start = 12.dp, end = 12.dp, bottom = 12.dp).width(400.dp).clip(RoundedCornerShape(16.dp)).background(ColorBox.primaryDark2)) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(56.dp).background(color = ColorBox.primaryDark2),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                modifier = Modifier.padding(start = 12.dp).weight(1f),
-                text = "Equalizer",
-                color = ColorBox.text.copy(0.8f),
-                fontSize = 18.sp
-            )
-            Switch(
-                modifier = Modifier.padding(end = 6.dp),
-                checked = switchTurnOnOff,
-                onCheckedChange = {
-                    switchTurnOnOff = it
-                    if (switchTurnOnOff) {
-                        CorePlayer.turnOnEqualizer(currentPresetName)
-                    } else {
-                        CorePlayer.turnOffEqualizer()
-                    }
-                },
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = ColorBox.primary,
-                    uncheckedThumbColor = ColorBox.primary.copy(0.6f),
-                    uncheckedTrackColor = ColorBox.primary,
-                    uncheckedTrackAlpha = 0.1f
-                )
-            )
-        }
-        Spacer(Modifier.padding(10.dp))
-        EqualizerLayout(
-            switchTurnOnOff,
-            currentPresetName,
-            switchedPreset = {
-                currentPresetName = it
-            }
-        )
-    }
-}
-
-@Composable
 private fun AudioRow(
     modelAudio: ModelAudio,
     playingAudio: ModelAudio,
+    showAlbumName: Boolean,
     isPlaying: Boolean,
     active: Boolean,
     onMoreClick: () -> Unit
@@ -323,7 +396,7 @@ private fun AudioRow(
             )
         }
         Column(
-            Modifier.padding(start = 8.dp, end = 12.dp).height(64.dp).weight(1f),
+            Modifier.padding(start = 8.dp, end = 12.dp).height(64.dp).weight(2f).fillMaxWidth(),
             verticalArrangement = Arrangement.Center
         ) {
             Text(
@@ -333,31 +406,14 @@ private fun AudioRow(
                 color = textColor,
                 fontSize = 14.sp
             )
-            Spacer(Modifier.padding(2.dp))
-            Text(
-                text = modelAudio.artist,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                color = textColor.copy(0.8f),
-                fontSize = 11.sp
-            )
-            Spacer(Modifier.padding(2.dp))
+            Spacer(Modifier.padding(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = modelAudio.duration.formatToDuration(),
+                    text = modelAudio.artist,
                     maxLines = 1,
-                    color = textColor.copy(0.6f),
-                    fontSize = 11.sp
-                )
-                CircleDot(
-                    modifier = Modifier.padding(start = 6.dp, end = 6.dp).size(4.dp),
-                    color = textColor.copy(0.4f)
-                )
-                Text(
-                    text = modelAudio.size.formatToSizeFile(),
-                    maxLines = 1,
-                    color = textColor.copy(0.6f),
-                    fontSize = 11.sp
+                    overflow = TextOverflow.Ellipsis,
+                    color = textColor.copy(0.8f),
+                    fontSize = 12.sp
                 )
                 AnimatedVisibility(
                     visible = modelAudio.isFav,
@@ -373,6 +429,23 @@ private fun AudioRow(
                 }
             }
         }
+        if (showAlbumName) {
+            Text(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                text = modelAudio.album,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                color = textColor.copy(0.7f),
+                fontSize = 13.sp
+            )
+        }
+        Text(
+            modifier = Modifier.padding(start = 12.dp, end = 12.dp),
+            text = modelAudio.duration.formatToDuration(),
+            maxLines = 1,
+            color = textColor.copy(0.9f),
+            fontSize = 13.sp
+        )
         MyIconButton(
             icon = "icons/more.svg",
             colorFilter = textColor.copy(0.8f)
