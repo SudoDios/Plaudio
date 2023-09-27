@@ -53,13 +53,13 @@
 
 ### Todo
 
-- [ ] TrayIcon
-- [x] ReSync to merge new files (& folders)
-- [x] More tag fields edit
-- [x] Make resizable window
-- [ ] Playlist feature
-- [x] Light Theme
-- [ ] YouTube music downloader
+> - [ ] TrayIcon
+> - [x] ReSync to merge new files (& folders)
+> - [x] More tag fields edit
+> - [x] Make resizable window
+> - [ ] Playlist feature
+> - [x] Light Theme
+> - [ ] YouTube music downloader
 
 ### Libraries
 
