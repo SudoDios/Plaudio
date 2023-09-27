@@ -20,7 +20,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import components.*
@@ -32,7 +31,6 @@ import ru.alexgladkov.odyssey.compose.extensions.present
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
 import theme.ColorBox
-import utils.Global
 import utils.Prefs
 import utils.Tools
 import utils.Tools.formatToDuration
@@ -40,7 +38,6 @@ import utils.Tools.roundPlace
 
 @Composable
 fun PlayerBottomSheet(
-    currentHeight : Dp = 0.dp,
     isOnBoard : Boolean= false,
     onClose: () -> Unit
 ) {
@@ -88,7 +85,7 @@ fun PlayerBottomSheet(
 
     Box(modifier = baseModifier) {
         SmoothImage(
-            modifier = Modifier.fillMaxWidth().height(backgroundImageHeight.dp).blur(20.dp).alpha(0.4f),
+            modifier = Modifier.fillMaxWidth().height(backgroundImageHeight.dp).blur(20.dp).alpha(0.6f),
             image = mediaItem.value.coverArt,
             fadeOnChange = true,
             contentScale = ContentScale.Crop
@@ -240,30 +237,26 @@ fun PlayerBottomSheet(
                     )
                     Spacer(Modifier.padding(6.dp))
                 }
-                AnimatedVisibility(
-                    visible = currentHeight.value < Global.SIZE_HEIGHT_LARGE
-                ) {
-                    Box(Modifier.padding(end = 20.dp).size(48.dp)) {
-                        MyIconButton(
-                            background = ColorBox.text.copy(0.1f),
-                            icon = "icons/equalizer.svg",
-                            colorFilter = ColorBox.text.copy(0.8f),
-                            onClick = {
-                                modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
-                                    EqualizerDialog {
-                                        modalController.popBackStack(null)
-                                    }
+                Box(Modifier.padding(end = 20.dp).size(48.dp)) {
+                    MyIconButton(
+                        background = ColorBox.text.copy(0.1f),
+                        icon = "icons/equalizer.svg",
+                        colorFilter = ColorBox.text.copy(0.8f),
+                        onClick = {
+                            modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
+                                EqualizerDialog {
+                                    modalController.popBackStack(null)
                                 }
                             }
-                        )
-                        this@Row.AnimatedVisibility(
-                            modifier = Modifier.align(Alignment.TopEnd),
-                            visible = isEqEnable.value,
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            CircleDot(Modifier.padding(3.dp).size(8.dp), color = Color.Green)
                         }
+                    )
+                    this@Row.AnimatedVisibility(
+                        modifier = Modifier.align(Alignment.TopEnd),
+                        visible = isEqEnable.value,
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        CircleDot(Modifier.padding(3.dp).size(8.dp), color = Color.Green)
                     }
                 }
             }
