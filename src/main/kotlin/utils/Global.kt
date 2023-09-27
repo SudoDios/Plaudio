@@ -8,6 +8,7 @@ import core.db.models.ModelFolder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 
 object Global {
 
@@ -62,7 +63,7 @@ object Global {
             allAudiosFolder.value = ModelFolder(childCunt = audioList.size)
             favoritesFolder.value = ModelFolder(name = "Favorites", path = "#Fav", childCunt = audioList.count { it.isFav })
             audioList.groupingBy { it.folder }.eachCount().forEach {
-                foldersList.add(ModelFolder(name = it.key.substringAfterLast("/"), type = ModelFolder.TYPE_FOLDER, path = it.key, childCunt = it.value))
+                foldersList.add(ModelFolder(name = it.key.substringAfterLast(File.separator), type = ModelFolder.TYPE_FOLDER, path = it.key, childCunt = it.value))
             }
             audioList.groupingBy { it.album }.eachCount().forEach {
                 albumsList.add(ModelFolder(name = it.key, type = ModelFolder.TYPE_ALBUM, path = it.key, childCunt = it.value))
