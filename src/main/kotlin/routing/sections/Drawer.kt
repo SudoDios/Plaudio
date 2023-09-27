@@ -1,35 +1,41 @@
 package routing.sections
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import components.CircleDot
 import components.MyIconButton
 import core.db.models.ModelFolder
+import core.db.models.ModelPlaylist
 import routing.dialogs.AboutDialog
+import routing.dialogs.CreatePlaylistDialog
+import routing.dialogs.SearchAudioDialog
+import ru.alexgladkov.odyssey.compose.controllers.ModalController
 import ru.alexgladkov.odyssey.compose.extensions.present
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
@@ -40,97 +46,312 @@ import utils.Global
 import utils.clickable
 
 @Composable
-fun Drawer(
-    callback: () -> Unit
-) {
+fun Drawer(callback: () -> Unit) {
 
     val modalController = LocalRootController.current.findModalController()
 
-    Box(Modifier.width(300.dp).fillMaxHeight()) {
-        Column(modifier = Modifier
-            .fillMaxSize()
+    Column(
+        modifier = Modifier
+            .width(300.dp)
+            .fillMaxHeight()
             .background(ColorBox.primaryDark2)
+    ) {
+        DrawerHeader()
+        DrawerBody(callback)
+        DrawerFooter(modalController)
+    }
+
+}
+
+@Composable
+private fun DrawerHeader() {
+    Row(
+        Modifier.fillMaxWidth().padding(start = 24.dp, top = 24.dp, bottom = 24.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            Modifier.size(40.dp).clip(RoundedCornerShape(50)).background(ColorBox.text.copy(0.1f)),
+            contentAlignment = Alignment.Center
         ) {
-            Row(
-                Modifier.fillMaxWidth().padding(start = 24.dp, top = 24.dp, bottom = 24.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    Modifier.size(40.dp).clip(RoundedCornerShape(50)).background(ColorBox.text.copy(0.1f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource("icons/app_icon.svg"),
-                        contentDescription = null,
-                        tint = ColorBox.text
-                    )
-                }
-                Spacer(Modifier.padding(6.dp))
-                Text(
-                    text = "Plaudio",
-                    style = TextStyle.Default.copy(
-                        fontFamily = Fonts.varela,
-                        brush = Brush.linearGradient(listOf(ColorBox.text, ColorBox.text.copy(0.5f))),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp,
-                        letterSpacing = 3.sp
-                    )
-                )
+            Icon(
+                painter = painterResource("icons/app_icon.svg"),
+                contentDescription = null,
+                tint = ColorBox.text
+            )
+        }
+        Spacer(Modifier.padding(6.dp))
+        Text(
+            text = "Plaudio",
+            style = TextStyle.Default.copy(
+                fontFamily = Fonts.varela,
+                brush = Brush.linearGradient(listOf(ColorBox.text, ColorBox.text.copy(0.5f))),
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                letterSpacing = 3.sp
+            )
+        )
+    }
+}
+
+@Composable
+private fun ColumnScope.DrawerBody(callback: () -> Unit) {
+    var expandedItem by rememberSaveable { mutableStateOf("") }
+
+    Column(Modifier.padding(start = 4.dp, end = 4.dp).fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
+        DrawerSingleItem(
+            icon = "icons/audio-folder.svg",
+            modelFolder = Global.Data.allAudiosFolder.value,
+            onClick = {
+                Global.Data.currentFolder.value = Global.Data.allAudiosFolder.value
+                Global.Data.searchOrFilter()
+                callback.invoke()
             }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = 12.dp, end = 12.dp,bottom = 80.dp)
-            ) {
-                items(Global.Data.folderList) {
-                    FolderItem(it, Global.Data.currentFolder.value.path == it.path) {
-                        callback.invoke()
-                        Global.Data.currentFolder.value = it
-                        Global.Data.searchOrFilter()
-                    }
-                    if (it.path == "#Fav") {
-                        Divider(
-                            Modifier.padding(top = 6.dp, bottom = 6.dp).fillMaxWidth(),
-                            color = ColorBox.text.copy(0.2f)
-                        )
-                    }
+        )
+        DrawerSingleItem(
+            icon = "icons/heart-bold.svg",
+            iconTint = Color.Red,
+            modelFolder = Global.Data.favoritesFolder.value,
+            onClick = {
+                Global.Data.currentFolder.value = Global.Data.favoritesFolder.value
+                Global.Data.searchOrFilter()
+                callback.invoke()
+            }
+        )
+        Divider(
+            Modifier.padding(top = 6.dp, bottom = 6.dp).fillMaxWidth(),
+            color = ColorBox.text.copy(0.2f)
+        )
+        DrawerItem(
+            expandedItem = expandedItem,
+            icon = "icons/folder.svg",
+            name = "Folders",
+            size = Global.Data.foldersList.size,
+            content = Global.Data.foldersList,
+            callback = callback,
+            onClick = {
+                expandedItem = if (expandedItem == it) "" else it
+            }
+        )
+        DrawerItem(
+            expandedItem = expandedItem,
+            icon = "icons/audio-folder.svg",
+            name = "Albums",
+            size = Global.Data.albumsList.size,
+            content = Global.Data.albumsList,
+            callback = callback,
+            onClick = {
+                expandedItem = if (expandedItem == it) "" else it
+            }
+        )
+        DrawerItem(
+            expandedItem = expandedItem,
+            icon = "icons/mic.svg",
+            name = "Artists",
+            size = Global.Data.artistsList.size,
+            content = Global.Data.artistsList,
+            callback = callback,
+            onClick = {
+                expandedItem = if (expandedItem == it) "" else it
+            }
+        )
+    }
+}
+
+@Composable
+private fun DrawerFooter(modalController: ModalController) {
+    Row(Modifier.fillMaxWidth().background(ColorBox.card).clickable()) {
+        Row(
+            Modifier
+                .padding(12.dp)
+                .height(44.dp)
+                .weight(1f)
+                .clip(RoundedCornerShape(50))
+                .background(ColorBox.text.copy(0.1f))
+                .clickable {
+                    ColorBox.switchDarkLight()
+                },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            DayNightAnimationIcon(
+                Modifier.padding(start = 8.dp).size(28.dp),
+                color = ColorBox.text,
+                isDay = ColorBox.isDarkMode
+            )
+            Text(
+                modifier = Modifier.padding(start = 10.dp, end = 10.dp),
+                text = "Switch theme",
+                fontSize = 14.sp,
+                color = ColorBox.text
+            )
+        }
+        MyIconButton(
+            size = 44.dp,
+            contentPadding = 10.dp,
+            padding = PaddingValues(top = 12.dp, bottom = 12.dp, end = 6.dp),
+            icon = "icons/refresh.svg"
+        ) {
+            modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 7)) {
+                SearchAudioDialog {
+                    modalController.popBackStack(null)
+                    Global.Data.refreshAudioList()
+                    Global.Data.setData(true, reFilter = true)
                 }
             }
         }
-        Row(Modifier.fillMaxWidth().align(Alignment.BottomCenter).background(ColorBox.card).clickable()) {
-            Row(
-                Modifier
-                    .padding(12.dp)
-                    .height(44.dp)
-                    .weight(1f)
-                    .clip(RoundedCornerShape(50))
-                    .background(ColorBox.text.copy(0.1f))
-                    .clickable {
-                        ColorBox.switchDarkLight()
-                    },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DayNightAnimationIcon(
-                    Modifier.padding(start = 8.dp).size(28.dp),
-                    color = ColorBox.text,
-                    isDay = ColorBox.isDarkMode
-                )
-                Text(
-                    modifier = Modifier.padding(start = 10.dp, end = 10.dp),
-                    text = "Switch theme",
-                    fontSize = 14.sp,
-                    color = ColorBox.text
-                )
+        MyIconButton(
+            size = 44.dp,
+            contentPadding = 10.dp,
+            padding = PaddingValues(top = 12.dp, bottom = 12.dp, end = 8.dp),
+            icon = "icons/info.svg"
+        ) {
+            modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 7)) {
+                AboutDialog {
+                    modalController.popBackStack(null)
+                }
             }
-            MyIconButton(
-                size = 44.dp,
-                contentPadding = 8.dp,
-                padding = PaddingValues(top = 12.dp, bottom = 12.dp, end = 12.dp),
-                icon = "icons/info.svg"
+        }
+    }
+}
+
+
+@Composable
+private fun DrawerSingleItem(
+    icon: String,
+    modelFolder: ModelFolder,
+    onClick: () -> Unit,
+    iconTint: Color = ColorBox.primary.copy(0.8f),
+) {
+
+    val isSelected = Global.Data.currentFolder.value.path == modelFolder.path
+    val backgroundColor = if (isSelected) ColorBox.primary.copy(0.15f) else Color.Transparent
+
+    Row(
+        modifier = Modifier
+            .padding(6.dp)
+            .fillMaxWidth()
+            .height(44.dp)
+            .clip(RoundedCornerShape(50))
+            .background(backgroundColor)
+            .clickable {
+                onClick.invoke()
+            },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(Modifier.padding(7.dp))
+        AnimatedVisibility(
+            visible = isSelected
+        ) {
+            CircleDot(Modifier.padding(end = 8.dp).size(6.dp), color = ColorBox.primary)
+        }
+        Icon(
+            modifier = Modifier.size(23.dp),
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = iconTint
+        )
+        Spacer(Modifier.padding(7.dp))
+        Text(
+            modifier = Modifier.weight(1f),
+            text = "${modelFolder.name} (${modelFolder.childCunt})",
+            fontSize = 14.sp,
+            color = ColorBox.text.copy(0.9f)
+        )
+    }
+}
+
+@Composable
+private fun DrawerItem(
+    expandedItem: String = "",
+    icon: String,
+    name: String,
+    size: Int,
+    onClick: (String) -> Unit,
+    callback: () -> Unit,
+    iconTint: Color = ColorBox.primary.copy(0.8f),
+    content: SnapshotStateList<ModelFolder> = SnapshotStateList()
+) {
+
+    val animateFraction = animateFloatAsState(if (expandedItem == name) 1f else 0f)
+    val expandBackColor = androidx.compose.ui.graphics.lerp(Color.Transparent, ColorBox.primary.copy(0.05f), animateFraction.value)
+
+    val isSelected = content.any { it.type == Global.Data.currentFolder.value.type && it.path == Global.Data.currentFolder.value.path }
+
+    Column(Modifier.padding(6.dp).fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(expandBackColor)) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp)
+                .clip(RoundedCornerShape(50))
+                .clickable {
+                    onClick.invoke(name)
+                },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(Modifier.padding(7.dp))
+            AnimatedVisibility(
+                visible = isSelected
             ) {
-                modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 7)) {
-                    AboutDialog {
-                        modalController.popBackStack(null)
+                CircleDot(Modifier.padding(end = 8.dp).size(6.dp), color = ColorBox.primary)
+            }
+            Icon(
+                modifier = Modifier.size(23.dp),
+                painter = painterResource(icon),
+                contentDescription = null,
+                tint = iconTint
+            )
+            Spacer(Modifier.padding(7.dp))
+            Text(
+                modifier = Modifier.weight(1f),
+                text = "$name ($size)",
+                fontSize = 14.sp,
+                color = ColorBox.text.copy(0.9f)
+            )
+            Icon(
+                modifier = Modifier.padding(end = 12.dp).size(20.dp).rotate(180 * animateFraction.value),
+                painter = painterResource("icons/arrow-down.svg"),
+                contentDescription = null,
+                tint = ColorBox.text.copy(0.8f)
+            )
+        }
+        AnimatedVisibility(
+            visible = expandedItem == name
+        ) {
+
+            val modalController = LocalRootController.current.findModalController()
+
+            Column(Modifier.fillMaxWidth()) {
+                if (name == "Playlists") {
+                    Row(Modifier.fillMaxWidth().height(44.dp).clickable {
+                        modalController.present(AlertConfiguration(cornerRadius = 7, alpha = 0.6f)) {
+                            CreatePlaylistDialog(
+                                modalController,
+                                ModelPlaylist(),
+                                callback = {
+
+                                }
+                            )
+                        }
+                    }, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+                        Icon(
+                            modifier = Modifier.size(20.dp),
+                            painter = painterResource("icons/add-circle.svg"),
+                            contentDescription = null,
+                            tint = ColorBox.text.copy(0.8f)
+                        )
+                        Text(
+                            modifier = Modifier.padding(start = 12.dp),
+                            text = "Create Playlist",
+                            color = ColorBox.text.copy(0.8f),
+                            fontSize = 13.sp
+                        )
                     }
+                }
+                content.forEach {
+                    DrawerSubItem(it, onClick = {
+                        Global.Data.currentFolder.value = it
+                        Global.Data.searchOrFilter()
+                        callback.invoke()
+                    })
                 }
             }
         }
@@ -138,57 +359,34 @@ fun Drawer(
 
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun FolderItem(modelFolder: ModelFolder, isSelected: Boolean, onClick: () -> Unit) {
+private fun DrawerSubItem(
+    modelFolder: ModelFolder,
+    onClick: () -> Unit
+) {
 
-    val icon = when (modelFolder.path) {
-        "#All" -> "icons/audio-folder.svg"
-        "#Fav" -> "icons/heart.svg"
-        else -> "icons/folder.svg"
-    }
-
-    val color = when (modelFolder.path) {
-        "#All" -> ColorBox.text
-        "#Fav" -> Color.Red
-        else -> ColorBox.text.copy(0.6f)
-    }
-
-    val animate = animateFloatAsState(if (isSelected) 1f else 0f, animationSpec = tween(400))
-    val contentColor = lerp(ColorBox.text, ColorBox.primaryDark2, animate.value)
+    val currentSel = Global.Data.currentFolder.value
+    val backgroundColor =
+        if (currentSel.path == modelFolder.path && currentSel.type == modelFolder.type) ColorBox.primary.copy(0.1f) else Color.Transparent
 
     Row(
         modifier = Modifier
-            .padding(2.dp)
+            .padding(4.dp)
             .fillMaxWidth()
-            .height(44.dp)
+            .height(40.dp)
             .clip(RoundedCornerShape(50))
-            .drawBehind {
-                drawCircle(
-                    color = ColorBox.text,
-                    radius = size.width * animate.value
-                )
-            }
-            .onPointerEvent(PointerEventType.Enter) {
-
-            }
-            .onPointerEvent(PointerEventType.Exit) {
-
-            }
+            .background(backgroundColor)
             .clickable {
                 onClick.invoke()
             },
         verticalAlignment = Alignment.CenterVertically
     ) {
         Spacer(Modifier.padding(7.dp))
-        Icon(
-            modifier = Modifier.size(23.dp),
-            painter = painterResource(icon),
-            contentDescription = null,
-            tint = if (modelFolder.path == "#Fav") color else contentColor
+        Text(
+            modifier = Modifier.weight(1f),
+            text = "${modelFolder.name} (${modelFolder.childCunt})",
+            fontSize = 13.sp,
+            color = ColorBox.text.copy(0.8f)
         )
-        Spacer(Modifier.padding(7.dp))
-        Text(text = "${modelFolder.name} (${modelFolder.childCunt})", fontSize = 14.sp, color = contentColor)
     }
-
 }
