@@ -1,5 +1,6 @@
 package core
 
+import core.db.CoreDB
 import core.db.models.ModelAudio
 import dev.icerock.moko.mvvm.livedata.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
@@ -12,10 +13,14 @@ import uk.co.caprica.vlcj.player.component.AudioPlayerComponent
 import utils.Global
 import utils.Prefs
 import utils.Tools
+import java.util.*
 
 object CorePlayer {
 
     private lateinit var audioPlayerComponent: AudioPlayerComponent
+    private val viewModify = ViewModify {
+        CoreDB.Audios.updatePlayCount(currentMediaItemCallback.value.hash)
+    }
 
     private var listIndexCallback : MutableLiveData<Int?> = MutableLiveData(null)
     var visiblePlayer = MutableLiveData(false)
@@ -99,6 +104,7 @@ object CorePlayer {
             job?.cancel()
         }
         job = CoroutineScope(Dispatchers.IO).launch {
+            viewModify.start()
             audioPlayerComponent.mediaPlayer().media().prepare(musicItem.path)
             audioPlayerComponent.mediaPlayer().controls().play()
         }
@@ -226,6 +232,24 @@ object CorePlayer {
                 }
             }
         }
+    }
+
+
+    private class ViewModify(var onFinish : () -> Unit) {
+
+        private var timer = Timer()
+
+        fun start () {
+            timer.cancel()
+            timer.purge()
+            timer = Timer()
+            timer.schedule(object : TimerTask() {
+                override fun run() {
+                    onFinish.invoke()
+                }
+            },10000)
+        }
+
     }
 
 }

@@ -1,4 +1,4 @@
-package core
+package core.extractor
 
 import core.db.models.ModelAudio
 import org.jaudiotagger.audio.AudioFileIO
@@ -9,12 +9,13 @@ import java.util.concurrent.TimeUnit
 
 object AudioInfo {
 
-    fun getInfo2 (file : File) : ModelAudio? {
+    fun getInfo (file : File) : ModelAudio? {
         try {
             val audioFile = AudioFileIO.read(file)
             val modelAudio = ModelAudio()
             modelAudio.name = audioFile.tag.getFirst(FieldKey.TITLE).titleFix(file.name.substringBeforeLast("."))
             modelAudio.artist = audioFile.tag.getFirst(FieldKey.ARTIST).artistNameFix()
+            modelAudio.album = audioFile.tag.getFirst(FieldKey.ALBUM).artistNameFix()
             if (audioFile.tag.firstArtwork != null) {
                 val mime = audioFile.tag.firstArtwork.mimeType
                 modelAudio.coverArt = Tools.writeThumbImage(audioFile.tag.firstArtwork.binaryData,mime)

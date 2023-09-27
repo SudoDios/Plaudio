@@ -44,6 +44,7 @@ fun EditTagsDialog(
 
     var title by remember { mutableStateOf(modelAudio.name) }
     var artist by remember { mutableStateOf(modelAudio.artist) }
+    var album by remember { mutableStateOf(modelAudio.album) }
     var cover by remember { mutableStateOf(modelAudio.coverArt) }
     var isChangedCover by remember { mutableStateOf(false) }
 
@@ -82,10 +83,12 @@ fun EditTagsDialog(
                         }
                         audioFile.tag.setField(FieldKey.TITLE,title)
                         audioFile.tag.setField(FieldKey.ARTIST,artist)
+                        audioFile.tag.setField(FieldKey.ALBUM,album)
                         AudioFileIO.write(audioFile)
                         val newSize = File(modelAudio.path).length()
                         modelAudio.name = title
                         modelAudio.artist = artist
+                        modelAudio.album = album
                         modelAudio.coverArt = cover
                         modelAudio.size = newSize
                         CoreDB.Audios.update(modelAudio)
@@ -122,11 +125,18 @@ fun EditTagsDialog(
             label = { Text("Title") }
         )
         CustomTextField(
-            modifier = Modifier.padding(top = 8.dp, start = 20.dp, end = 20.dp, bottom = 20.dp).fillMaxWidth(),
+            modifier = Modifier.padding(top = 8.dp, start = 20.dp, end = 20.dp, bottom = 8.dp).fillMaxWidth(),
             value = artist,
             singleLine = true,
             onValueChange = { artist = it },
             label = { Text("Artist") }
+        )
+        CustomTextField(
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp).fillMaxWidth(),
+            value = album,
+            singleLine = true,
+            onValueChange = { album = it },
+            label = { Text("Album") }
         )
     }
 

@@ -1,8 +1,18 @@
 package core.db.models
 
 data class ModelFolder(
-    var id : Int? = null,
+    var id : Int = -1,
     var name : String = "All Audios",
+    var type : Int = TYPE_FOLDER,
     var path : String = "#All",
     var childCunt : Int = 0
-)
+) {
+
+    companion object {
+        const val TYPE_FOLDER = 0
+        const val TYPE_ALBUM = 1
+        const val TYPE_ARTIST = 2
+        const val TYPE_PLAYLIST = 3
+    }
+
+}
