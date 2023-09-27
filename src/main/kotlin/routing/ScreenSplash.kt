@@ -25,7 +25,6 @@ import routing.dialogs.SearchAudioDialog
 import ru.alexgladkov.odyssey.compose.extensions.present
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
-import theme.ColorBox
 import utils.Tools
 
 @Composable
@@ -36,7 +35,7 @@ fun ScreenSplash() {
 
     val audioCount = CoreDB.Audios.count()
 
-    if (audioCount > 0){
+    if (audioCount > 0) {
         LaunchedEffect(Unit) {
             delay(600)
             rootController.present(Routes.HOME)
@@ -76,16 +75,16 @@ fun ScreenSplash() {
                     .padding(top = 20.dp)
                     .height(48.dp)
                     .clip(RoundedCornerShape(50))
-                    .background(ColorBox.primary.copy(0.1f))
+                    .background(Color.White.copy(0.1f))
                     .clickable {
                         modalController.present(
                             AlertConfiguration(
-                                cornerRadius = 12,
+                                cornerRadius = 6,
                                 alpha = 0.6f,
                                 closeOnBackdropClick = false
                             )
                         ) {
-                            SearchAudioDialog { _, _ ->
+                            SearchAudioDialog { ->
                                 modalController.popBackStack(null)
                                 Tools.postDelayed(500) {
                                     rootController.present(Routes.HOME)
@@ -100,12 +99,12 @@ fun ScreenSplash() {
                     modifier = Modifier.padding(start = 12.dp).size(20.dp),
                     painter = painterResource("icons/search-normal.svg"),
                     contentDescription = null,
-                    tint = ColorBox.primary.copy(0.8f)
+                    tint = Color.White.copy(0.8f)
                 )
                 Text(
-                    modifier = Modifier.padding(start = 12.dp, end = 12.dp),
-                    text = "Start search audio files",
-                    color = ColorBox.primary.copy(0.9f),
+                    modifier = Modifier.padding(start = 12.dp, end = 16.dp),
+                    text = "Open Sync Settings",
+                    color = Color.White.copy(0.9f),
                     fontSize = 13.sp
                 )
             }

@@ -1,81 +1,187 @@
 package routing.dialogs
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import components.AnimatedText
-import components.SearchAnimIcon
+import components.MyIconButton
+import components.SSDScanAnimation
 import core.db.models.ModelAudio
-import core.db.models.ModelFolder
-import core.extractor.FolderWalker
+import core.extractor.AudioStore
+import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import theme.ColorBox
 import utils.Global
-import java.io.File
+import utils.Prefs
 
 @Composable
-fun SearchAudioDialog(onFinished : (audios: SnapshotStateList<ModelAudio>, folders: SnapshotStateList<ModelFolder>) -> Unit) {
+fun SearchAudioDialog(onFinished: () -> Unit) {
 
-    var findCount by remember { mutableStateOf(0) }
-    var searchedContent by remember { mutableStateOf("") }
+    val rootController = LocalRootController.current
+    val modalController = rootController.findModalController()
+
+    var folderCount by remember { mutableStateOf(0) }
+    var audioCount by remember { mutableStateOf(0) }
+    var albumCount by remember { mutableStateOf(0) }
+    var artistCount by remember { mutableStateOf(0) }
+
+    var isSearching by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        FolderWalker(object : FolderWalker.Callback{
-            override fun onSearching(folder: String) {
-                searchedContent = folder
+        AudioStore.callback = object : AudioStore.Callback {
+            override fun onCounting(audios: ArrayList<ModelAudio>) {
+                folderCount = audios.distinctBy { it.folder }.size
+                audioCount = audios.size
+                albumCount = audios.distinctBy { it.album }.size
+                artistCount = audios.distinctBy { it.artist }.size
             }
-            override fun onCounting(count: Int) {
-                findCount = count
+            override fun onFinished() {
+                onFinished.invoke()
+                Prefs.isFirstInitialized = true
             }
-            override fun onFinished(audios: ArrayList<ModelAudio>, folders: ArrayList<ModelFolder>) {
-                onFinished.invoke(SnapshotStateList<ModelAudio>().apply { addAll(audios) }, SnapshotStateList<ModelFolder>().apply { addAll(folders) })
-            }
-        }).findAudios(File(Global.userHome))
+        }
     }
 
     Column(
-        modifier = Modifier.width(320.dp).background(ColorBox.primaryDark2),
+        modifier = Modifier.width(400.dp).background(ColorBox.primaryDark2),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        SearchAnimIcon(Modifier.padding(top = 30.dp).size(90.dp))
-        Text(
-            modifier = Modifier.padding(top = 25.dp),
-            text = "Searching for audios ...",
-            color = ColorBox.text,
-            fontSize = 16.sp
-        )
         Row(
-            modifier = Modifier.padding(top = 16.dp, bottom = 12.dp),
+            modifier = Modifier.fillMaxWidth().height(56.dp).background(color = ColorBox.primaryDark.copy(0.5f)),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            AnimatedText(
-                modifier = Modifier.padding(),
-                text = findCount.toString(),
-                color = ColorBox.primary,
-                fontSize = 13.sp
+            Spacer(Modifier.padding(3.dp))
+            MyIconButton(
+                contentPadding = 10.dp,
+                colorFilter = ColorBox.text.copy(0.6f),
+                icon = "icons/close.svg",
+                onClick = {
+                    if (!isSearching) {
+                        modalController.popBackStack(null)
+                    }
+                }
             )
             Text(
-                modifier = Modifier.padding(),
-                text = " items were found",
-                color = ColorBox.text.copy(0.7f),
-                fontSize = 12.sp
+                modifier = Modifier.padding(start = 12.dp),
+                text = "Sync Settings",
+                color = ColorBox.text.copy(0.8f),
+                fontSize = 18.sp
             )
         }
-        Text(
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 25.dp),
-            text = searchedContent,
-            maxLines = 2,
-            color = ColorBox.text.copy(0.7f),
-            textAlign = TextAlign.Center,
-            fontSize = 8.sp
+        SSDScanAnimation(
+            isSearching = isSearching,
+            Modifier.padding(top = 30.dp, bottom = 12.dp).size(90.dp)
         )
+        Row(
+            Modifier
+                .padding(20.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(ColorBox.primary.copy(0.1f))
+            , verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f).padding(12.dp)) {
+                Text(
+                    text = "Target Folder",
+                    color = ColorBox.text.copy(0.9f),
+                    fontSize = 13.sp
+                )
+                Text(
+                    modifier = Modifier.padding(top = 4.dp),
+                    text = Global.userHome,
+                    color = ColorBox.text.copy(0.7f),
+                    fontSize = 12.sp
+                )
+            }
+        }
+        AnimatedVisibility(
+            visible = isSearching
+        ) {
+            Column(modifier = Modifier.padding(bottom = 20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                Row(Modifier.padding(top = 16.dp, start = 20.dp, end = 20.dp).fillMaxWidth()) {
+                    FindItem(
+                        icon = "icons/folder.svg",
+                        key = "Folders",
+                        value = folderCount.toString()
+                    )
+                    Spacer(Modifier.padding(5.dp))
+                    FindItem(
+                        icon = "icons/music-note.svg",
+                        key = "Audios",
+                        value = audioCount.toString()
+                    )
+                }
+                Row(Modifier.padding(top = 16.dp, start = 20.dp, end = 20.dp).fillMaxWidth()) {
+                    FindItem(
+                        icon = "icons/audio-folder.svg",
+                        key = "Albums",
+                        value = albumCount.toString()
+                    )
+                    Spacer(Modifier.padding(5.dp))
+                    FindItem(
+                        icon = "icons/mic.svg",
+                        key = "Artists",
+                        value = artistCount.toString()
+                    )
+                }
+            }
+        }
+        Button(
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp).fillMaxWidth(),
+            shape = RoundedCornerShape(50),
+            colors = ButtonDefaults.buttonColors(contentColor = ColorBox.primaryDark),
+            enabled = !isSearching,
+            onClick = {
+                isSearching = !isSearching
+                AudioStore.findAudios(Global.userHome)
+            }
+        ) {
+            Text("Start sync device files")
+        }
     }
 
+}
+
+
+@Composable
+fun RowScope.FindItem(
+    icon: String,
+    value: String,
+    key: String
+) {
+    Row(
+        Modifier.weight(1f).clip(RoundedCornerShape(50)).background(ColorBox.text.copy(0.1f)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            modifier = Modifier.padding(12.dp).size(22.dp),
+            painter = painterResource(icon),
+            contentDescription = null,
+            tint = ColorBox.text.copy(0.8f)
+        )
+        AnimatedText(
+            modifier = Modifier,
+            text = value,
+            color = ColorBox.text,
+            fontSize = 14.sp
+        )
+        Spacer(Modifier.padding(3.dp))
+        Text(
+            text = key,
+            color = ColorBox.text.copy(0.8f),
+            fontSize = 13.sp
+        )
+    }
 }

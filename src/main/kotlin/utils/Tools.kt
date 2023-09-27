@@ -8,6 +8,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.security.MessageDigest
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
@@ -87,6 +88,21 @@ object Tools {
         } catch(_: IOException) {
             null
         }
+    }
+
+    fun File.md5() : String {
+        val md = MessageDigest.getInstance("MD5")
+        val result = this.inputStream().use { fis ->
+            val buffer = ByteArray(8192)
+            generateSequence {
+                when (val bytesRead = fis.read(buffer)) {
+                    -1 -> null
+                    else -> bytesRead
+                }
+            }.forEach { bytesRead -> md.update(buffer, 0, bytesRead) }
+            md.digest().joinToString("") { "%02x".format(it) }
+        }
+        return result
     }
 
     fun openFilePicker (title : String = "Choice an image",vararg filterFormats: String) : File? {

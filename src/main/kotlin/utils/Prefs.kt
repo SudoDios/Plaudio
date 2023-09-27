@@ -14,7 +14,6 @@ object Prefs {
 
     var playbackSpeed : Float = 0.33f
 
-
     var repeatModeChanged = MutableLiveData(repeatMode)
     var repeatMode : Int
         get() {
@@ -47,6 +46,15 @@ object Prefs {
         }
         set(value) {
             preferences.putBoolean("isDarkMode",value)
+        }
+
+    //initiate
+    var isFirstInitialized : Boolean
+        get() {
+            return preferences.getBoolean("isFirstInitialized",false)
+        }
+        set(value) {
+            preferences.putBoolean("isFirstInitialized",value)
         }
 
 }
