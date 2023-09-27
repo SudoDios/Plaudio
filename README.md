@@ -23,6 +23,7 @@
 > - Responsive
 > - Searching all your audios in (MP3,M4A,OGG) Formats
 > - Fetching all folders contains audios
+> - Fetching albums & artists from audios
 > - You can edit audios (IDV3) tags
 > - Equalizer presets support
 > - & more ...
@@ -36,8 +37,9 @@
 >      - install downloaded vlc exe file
 > 
 > 2. Download Plaudio
->     - for linux (**DEB** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.2.1/plaudio_1.2.1_amd64.deb)
->     - for windows (**EXE** installer) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.2.1/plaudio_1.2.1_installer_win.exe)
+>     - Debian based linux (**DEB** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.3.0/plaudio_1.3.0_amd64.deb)
+>     - Linux (**AppImage** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.3.0/plaudio_1.3.0_x86_64.AppImage)
+>     - Windows (**EXE** installer) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.3.0/plaudio_1.3.0_installer_win.exe)
 > 
 > `Tested on Ubuntu 18-20 & Windows 10-11`
 >
@@ -52,12 +54,12 @@
 ### Todo
 
 - [ ] TrayIcon
-- [ ] ReSync to merge new files (& folders)
-- [ ] More tag fields edit
+- [x] ReSync to merge new files (& folders)
+- [x] More tag fields edit
 - [x] Make resizable window
 - [ ] Playlist feature
 - [x] Light Theme
-- [ ] Youtube music downloader
+- [ ] YouTube music downloader
 
 ### Libraries
 
