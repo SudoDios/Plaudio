@@ -27,6 +27,11 @@ import java.util.logging.LogManager
 @Composable
 fun App() {
     //init
+    System.setProperty("java.util.prefs.userRoot",Global.prefsPath)
+    if (!Prefs.isFirstInitialized) {
+        File(Global.coverPaths).deleteRecursively()
+        File(Global.dbPath).deleteRecursively()
+    }
     File(Global.coverPaths).mkdirs()
     File(Global.dbPath).mkdirs()
     CoreDB.init()
