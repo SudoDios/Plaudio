@@ -212,7 +212,6 @@ private fun MostPlayItem(
         ) {
             SmoothImage(
                 modifier = Modifier.padding(4.dp).size(44.dp).clip(RoundedCornerShape(50)),
-                placeHolder = null,
                 image = modelAudio.coverArt,
                 contentScale = ContentScale.Crop
             )
