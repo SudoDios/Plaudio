@@ -26,6 +26,7 @@ import components.MyIconButton
 import components.SmoothImage
 import core.db.CoreDB
 import core.db.models.ModelAudio
+import core.extractor.AudioInfo.artistNameFix
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
@@ -87,8 +88,8 @@ fun EditTagsDialog(
                         AudioFileIO.write(audioFile)
                         val newSize = File(modelAudio.path).length()
                         modelAudio.name = title
-                        modelAudio.artist = artist
-                        modelAudio.album = album
+                        modelAudio.artist = artist.artistNameFix()
+                        modelAudio.album = album.artistNameFix()
                         modelAudio.coverArt = cover
                         modelAudio.size = newSize
                         CoreDB.Audios.update(modelAudio)
