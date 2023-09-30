@@ -41,6 +41,18 @@ object Tools {
         }
     }
 
+    fun Long.formatToDurationInfo(): String {
+        val totalSeconds = this / 1000
+        val seconds = totalSeconds % 60
+        val minutes = totalSeconds / 60 % 60
+        val hours = totalSeconds / 3600
+        val strBuilder = StringBuilder()
+        if (hours > 0) strBuilder.append("${hours}h ")
+        if (minutes > 0) strBuilder.append("${minutes}m ")
+        if (seconds > 0) strBuilder.append("${seconds}s")
+        return strBuilder.toString()
+    }
+
     fun Long.formatToSizeFile(): String {
         val symbols = DecimalFormatSymbols(Locale.ENGLISH)
         if (this <= 0) return "0"
