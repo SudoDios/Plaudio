@@ -42,10 +42,7 @@ fun PlayerBottomSheet(
     onClose: () -> Unit
 ) {
 
-    val modalController = LocalRootController.current.findModalController()
-
     var showRepeatPopup by remember { mutableStateOf(false) }
-    val repeatModeChange = Prefs.repeatModeChanged.observeAsState()
 
     var showSpeedPopup by remember { mutableStateOf(false) }
     var speedChange by remember { mutableStateOf("${((Prefs.playbackSpeed * 1.5) + 0.5).roundPlace(1)}x") }
@@ -69,200 +66,261 @@ fun PlayerBottomSheet(
         }
     )
 
-    val isMute = CorePlayer.isMutedCallback.observeAsState()
-    val volumeChanged = CorePlayer.volumeChangedCallback.observeAsState()
-    val mediaItem = CorePlayer.currentMediaItemCallback.observeAsState()
-    val isPlaying = CorePlayer.playPauseCallback.observeAsState()
-    val isEqEnable = CorePlayer.isEqEnableCallback.observeAsState()
 
-    var backgroundImageHeight by remember { mutableStateOf(0) }
+    val isActive = CorePlayer.visiblePlayer.observeAsState()
+
 
     val baseModifier = if (isOnBoard) {
-        Modifier.padding(12.dp).width(400.dp).clip(RoundedCornerShape(16.dp))
+        Modifier.padding(12.dp).width(400.dp).clip(RoundedCornerShape(16.dp)).background(ColorBox.primaryDark2)
     } else {
         Modifier.width(400.dp)
     }
 
     Box(modifier = baseModifier) {
+        if (isOnBoard) {
+            AnimatedVisibility(
+                visible = isActive.value,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Content(true, onClose, speedChange,
+                    repeatClicked = {
+                        showRepeatPopup = true
+                    },
+                    speedClicked = {
+                        showSpeedPopup = true
+                    }
+                )
+            }
+            if (!isActive.value) {
+                Column(Modifier.align(Alignment.Center).height(562.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        modifier = Modifier.size(60.dp),
+                        painter = painterResource("icons/play-circle.svg"),
+                        contentDescription = null,
+                        tint = ColorBox.text.copy(0.8f)
+                    )
+                    Text(
+                        modifier = Modifier.padding(top = 16.dp),
+                        text = "No item now playing",
+                        color = ColorBox.text.copy(0.8f),
+                        fontSize = 13.sp
+                    )
+                }
+            }
+        } else {
+            Content(false, onClose, speedChange,
+                repeatClicked = {
+                    showRepeatPopup = true
+                },
+                speedClicked = {
+                    showSpeedPopup = true
+                }
+            )
+        }
+    }
+
+}
+
+@Composable
+private fun Content (
+    isOnBoard: Boolean,
+    onClose: () -> Unit,
+    speedChange: String,
+    repeatClicked: () -> Unit,
+    speedClicked: () -> Unit
+) {
+
+    val modalController = LocalRootController.current.findModalController()
+    val repeatModeChange = Prefs.repeatModeChanged.observeAsState()
+
+    val isMute = CorePlayer.isMutedCallback.observeAsState()
+    val volumeChanged = CorePlayer.volumeChangedCallback.observeAsState()
+    val mediaItem = CorePlayer.currentMediaItemCallback.observeAsState()
+
+    val isPlaying = CorePlayer.playPauseCallback.observeAsState()
+    val isEqEnable = CorePlayer.isEqEnableCallback.observeAsState()
+
+    var backgroundImageHeight by remember { mutableStateOf(0) }
+
+    SmoothImage(
+        modifier = Modifier.fillMaxWidth().height(backgroundImageHeight.dp).blur(20.dp).alpha(0.6f),
+        image = mediaItem.value.coverArt,
+        fadeOnChange = true,
+        contentScale = ContentScale.Crop
+    )
+    Column(Modifier.fillMaxWidth().onSizeChanged { backgroundImageHeight = it.height }, horizontalAlignment = Alignment.CenterHorizontally) {
+        if (!isOnBoard) {
+            Icon(
+                modifier = Modifier.height(38.dp).fillMaxWidth().clickable {
+                    onClose.invoke()
+                },
+                painter = painterResource("icons/arrow-down.svg"),
+                contentDescription = null,
+                tint = ColorBox.text.copy(0.7f)
+            )
+        } else {
+            Spacer(Modifier.padding(top = 20.dp))
+        }
+        Spacer(Modifier.padding(top = 12.dp))
         SmoothImage(
-            modifier = Modifier.fillMaxWidth().height(backgroundImageHeight.dp).blur(20.dp).alpha(0.6f),
-            image = mediaItem.value.coverArt,
+            modifier = Modifier.size(if (!isOnBoard) 230.dp else 240.dp).aspectRatio(1f).clip(RoundedCornerShape(16.dp)),
             fadeOnChange = true,
+            image = mediaItem.value.coverArt,
             contentScale = ContentScale.Crop
         )
-        Column(Modifier.fillMaxWidth().onSizeChanged { backgroundImageHeight = it.height }, horizontalAlignment = Alignment.CenterHorizontally) {
-            if (!isOnBoard) {
-                Icon(
-                    modifier = Modifier.height(38.dp).fillMaxWidth().clickable {
-                        onClose.invoke()
-                    },
-                    painter = painterResource("icons/arrow-down.svg"),
-                    contentDescription = null,
-                    tint = ColorBox.text.copy(0.7f)
-                )
-            } else {
-                Spacer(Modifier.padding(top = 20.dp))
+        AnimatedContent(
+            targetState = mediaItem.value.name,
+            transitionSpec = {
+                (slideInVertically { height -> height } + fadeIn() togetherWith
+                        slideOutVertically { height -> -height } + fadeOut()).using(SizeTransform(false))
             }
-            Spacer(Modifier.padding(top = 12.dp))
-            SmoothImage(
-                modifier = Modifier.size(if (!isOnBoard) 230.dp else 240.dp).aspectRatio(1f).clip(RoundedCornerShape(16.dp)),
-                fadeOnChange = true,
-                image = mediaItem.value.coverArt,
-                contentScale = ContentScale.Crop
-            )
-            AnimatedContent(
-                targetState = mediaItem.value.name,
-                transitionSpec = {
-                    (slideInVertically { height -> height } + fadeIn() togetherWith
-                            slideOutVertically { height -> -height } + fadeOut()).using(SizeTransform(false))
-                }
-            ) { audioName ->
-                Text(
-                    modifier = Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp).fillMaxWidth(),
-                    text = audioName,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    color = ColorBox.text.copy(0.9f),
-                    textAlign = TextAlign.Center,
-                    fontSize = 15.sp
-                )
-            }
-            Spacer(Modifier.padding(6.dp))
+        ) { audioName ->
             Text(
-                text = mediaItem.value.artist,
-                color = ColorBox.text.copy(0.8f),
-                maxLines = 1,
+                modifier = Modifier.padding(top = 20.dp, start = 20.dp, end = 20.dp).fillMaxWidth(),
+                text = audioName,
+                minLines = 2,
+                maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                fontSize = 13.sp
+                color = ColorBox.text.copy(0.9f),
+                textAlign = TextAlign.Center,
+                fontSize = 15.sp
             )
-            DurationLayout(mediaItem.value.duration)
-            Row(
-                modifier = Modifier.padding(start = 20.dp,bottom = 4.dp,end = 20.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround
+        }
+        Spacer(Modifier.padding(6.dp))
+        Text(
+            text = mediaItem.value.artist,
+            color = ColorBox.text.copy(0.8f),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            fontSize = 13.sp
+        )
+        DurationLayout(mediaItem.value.duration)
+        Row(
+            modifier = Modifier.padding(start = 20.dp,bottom = 4.dp,end = 20.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            MyIconButton(
+                size = 40.dp,
+                icon = Tools.getRepeatModeIconByType(repeatModeChange.value),
+                background = ColorBox.text.copy(0.1f),
+                colorFilter = ColorBox.text,
+                contentPadding = 10.dp,
+                onClick = {
+                    repeatClicked.invoke()
+                }
+            )
+            MyIconButton(
+                size = 44.dp,
+                icon = "icons/skip-previous.svg",
+                background = ColorBox.text.copy(0.1f),
+                colorFilter = ColorBox.text,
+                contentPadding = 13.dp,
+                onClick = {
+                    CorePlayer.previous()
+                }
+            )
+            Box(
+                modifier = Modifier
+                    .size(58.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(ColorBox.text).clickable {
+                        CorePlayer.autoPlayPause()
+                    }, contentAlignment = Alignment.Center
             ) {
-                MyIconButton(
-                    size = 40.dp,
-                    icon = Tools.getRepeatModeIconByType(repeatModeChange.value),
-                    background = ColorBox.text.copy(0.1f),
-                    colorFilter = ColorBox.text,
-                    contentPadding = 10.dp,
-                    onClick = {
-                        showRepeatPopup = true
-                    }
+                PlayAnimationView(
+                    modifier = Modifier.size(44.dp),
+                    color = ColorBox.primaryDark,
+                    isPlaying.value
                 )
-                MyIconButton(
-                    size = 44.dp,
-                    icon = "icons/skip-previous.svg",
-                    background = ColorBox.text.copy(0.1f),
-                    colorFilter = ColorBox.text,
-                    contentPadding = 13.dp,
-                    onClick = {
-                        CorePlayer.previous()
-                    }
-                )
-                Box(
-                    modifier = Modifier
-                        .size(58.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(ColorBox.text).clickable {
-                            CorePlayer.autoPlayPause()
-                        }, contentAlignment = Alignment.Center
-                ) {
-                    PlayAnimationView(
-                        modifier = Modifier.size(44.dp),
-                        color = ColorBox.primaryDark,
-                        isPlaying.value
-                    )
-                }
-                MyIconButton(
-                    size = 44.dp,
-                    icon = "icons/skip-next.svg",
-                    background = ColorBox.text.copy(0.1f),
-                    colorFilter = ColorBox.text,
-                    contentPadding = 13.dp,
-                    onClick = {
-                        CorePlayer.next()
-                    }
-                )
-                Box(
-                    modifier = Modifier.size(40.dp)
-                        .clip(RoundedCornerShape(50))
-                        .background(ColorBox.text.copy(0.1f))
-                        .clickable(
-                            role = Role.Button,
-                            onClick = {
-                                showSpeedPopup = true
-                            }
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = speedChange,
-                        color = ColorBox.text,
-                        fontSize = 11.sp
-                    )
-                }
             }
+            MyIconButton(
+                size = 44.dp,
+                icon = "icons/skip-next.svg",
+                background = ColorBox.text.copy(0.1f),
+                colorFilter = ColorBox.text,
+                contentPadding = 13.dp,
+                onClick = {
+                    CorePlayer.next()
+                }
+            )
+            Box(
+                modifier = Modifier.size(40.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(ColorBox.text.copy(0.1f))
+                    .clickable(
+                        role = Role.Button,
+                        onClick = {
+                            speedClicked.invoke()
+                        }
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = speedChange,
+                    color = ColorBox.text,
+                    fontSize = 11.sp
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.padding(20.dp).weight(1f).height(48.dp).clip(RoundedCornerShape(50))
+                    .background(ColorBox.text.copy(0.1f)),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.padding(20.dp).weight(1f).height(48.dp).clip(RoundedCornerShape(50))
-                        .background(ColorBox.text.copy(0.1f)),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(Modifier.size(48.dp).clip(RoundedCornerShape(50)).clickable {
-                        CorePlayer.autoMute()
-                    }) {
-                        MuteAnimationIcon(modifier = Modifier.size(26.dp).align(Alignment.Center),color = ColorBox.text.copy(0.8f), isMute = isMute.value)
-                    }
-                    CustomSlider(
-                        modifier = Modifier.padding(start = 4.dp,end = 16.dp).weight(1f),
-                        value = (volumeChanged.value / 1.2f / 100f),
-                        trackColor = ColorBox.text,
-                        thumbColor = ColorBox.text,
-                        thumbSize = 6.dp,
-                        trackHeight = 2.6.dp,
-                        valueChanged = {
-                            CorePlayer.changeVolume((it * 1.2 * 100).toInt())
-                        },
-                        valueChangedFinished = {}
-                    )
-                    Text(
-                        text = "${volumeChanged.value}%",
-                        color = ColorBox.text.copy(0.8f),
-                        fontSize = 12.sp
-                    )
-                    Spacer(Modifier.padding(6.dp))
+                Box(Modifier.size(48.dp).clip(RoundedCornerShape(50)).clickable {
+                    CorePlayer.autoMute()
+                }) {
+                    MuteAnimationIcon(modifier = Modifier.size(26.dp).align(Alignment.Center),color = ColorBox.text.copy(0.8f), isMute = isMute.value)
                 }
-                Box(Modifier.padding(end = 20.dp).size(48.dp)) {
-                    MyIconButton(
-                        background = ColorBox.text.copy(0.1f),
-                        icon = "icons/equalizer.svg",
-                        colorFilter = ColorBox.text.copy(0.8f),
-                        onClick = {
-                            modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
-                                EqualizerDialog {
-                                    modalController.popBackStack(null)
-                                }
+                CustomSlider(
+                    modifier = Modifier.padding(start = 4.dp,end = 16.dp).weight(1f),
+                    value = (volumeChanged.value / 1.2f / 100f),
+                    trackColor = ColorBox.text,
+                    thumbColor = ColorBox.text,
+                    thumbSize = 6.dp,
+                    trackHeight = 2.6.dp,
+                    valueChanged = {
+                        CorePlayer.changeVolume((it * 1.2 * 100).toInt())
+                    },
+                    valueChangedFinished = {}
+                )
+                Text(
+                    text = "${volumeChanged.value}%",
+                    color = ColorBox.text.copy(0.8f),
+                    fontSize = 12.sp
+                )
+                Spacer(Modifier.padding(6.dp))
+            }
+            Box(Modifier.padding(end = 20.dp).size(48.dp)) {
+                MyIconButton(
+                    background = ColorBox.text.copy(0.1f),
+                    icon = "icons/equalizer.svg",
+                    colorFilter = ColorBox.text.copy(0.8f),
+                    onClick = {
+                        modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
+                            EqualizerDialog {
+                                modalController.popBackStack(null)
                             }
                         }
-                    )
-                    this@Row.AnimatedVisibility(
-                        modifier = Modifier.align(Alignment.TopEnd),
-                        visible = isEqEnable.value,
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-                        CircleDot(Modifier.padding(3.dp).size(8.dp), color = Color.Green)
                     }
+                )
+                this@Row.AnimatedVisibility(
+                    modifier = Modifier.align(Alignment.TopEnd),
+                    visible = isEqEnable.value,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    CircleDot(Modifier.padding(3.dp).size(8.dp), color = Color.Green)
                 }
             }
         }
     }
-
 }
 
 @Composable
