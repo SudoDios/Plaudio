@@ -17,7 +17,6 @@ import components.CustomTextField
 import components.MyIconButton
 import core.db.models.ModelPlaylist
 import ru.alexgladkov.odyssey.compose.controllers.ModalController
-import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import theme.ColorBox
 
 @Composable
