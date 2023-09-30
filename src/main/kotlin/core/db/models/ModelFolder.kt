@@ -5,7 +5,8 @@ data class ModelFolder(
     var name : String = "All Audios",
     var type : Int = TYPE_FOLDER,
     var path : String = "#All",
-    var childCunt : Int = 0
+    var duration : Long = 0,
+    var childCunt : Int = 0,
 ) {
 
     companion object {
