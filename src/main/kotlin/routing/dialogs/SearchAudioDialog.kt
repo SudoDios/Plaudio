@@ -134,7 +134,7 @@ fun SearchAudioDialog(onFinished: () -> Unit) {
                 }
                 Row(Modifier.padding(top = 16.dp, start = 20.dp, end = 20.dp).fillMaxWidth()) {
                     FindItem(
-                        icon = "icons/audio-folder.svg",
+                        icon = "icons/audio-album.svg",
                         key = "Albums",
                         value = albumCount.toString()
                     )
