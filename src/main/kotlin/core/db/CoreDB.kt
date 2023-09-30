@@ -176,9 +176,15 @@ object CoreDB {
             return arrayOut
         }
 
-        fun read () : ArrayList<ModelAudio> {
+        fun read (sortIn : Int = Global.Data.SORT_NAME_ASC) : ArrayList<ModelAudio> {
             val statement = connection.createStatement()
-            val query = statement.executeQuery("select * from audios order by name asc")
+            val sort = when(sortIn) {
+                Global.Data.SORT_NAME_ASC -> "name asc"
+                Global.Data.SORT_NAME_DESC -> "name desc"
+                Global.Data.SORT_DURATION_ASC -> "duration asc"
+                else -> "duration desc"
+            }
+            val query = statement.executeQuery("select * from audios order by $sort")
             val arrayOut = ArrayList<ModelAudio>()
             try {
                 while (query.next()) {
