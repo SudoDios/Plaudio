@@ -99,7 +99,7 @@ private fun ColumnScope.DrawerBody(callback: () -> Unit) {
 
     Column(Modifier.padding(start = 4.dp, end = 4.dp).fillMaxWidth().weight(1f).verticalScroll(rememberScrollState())) {
         DrawerSingleItem(
-            icon = "icons/audio-folder.svg",
+            icon = "icons/music-note-2.svg",
             modelFolder = Global.Data.allAudiosFolder.value,
             onClick = {
                 Global.Data.currentFolder.value = Global.Data.allAudiosFolder.value
@@ -134,7 +134,7 @@ private fun ColumnScope.DrawerBody(callback: () -> Unit) {
         )
         DrawerItem(
             expandedItem = expandedItem,
-            icon = "icons/audio-folder.svg",
+            icon = "icons/audio-album.svg",
             name = "Albums",
             size = Global.Data.albumsList.size,
             content = Global.Data.albumsList,
