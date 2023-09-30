@@ -13,11 +13,11 @@
 </p>
 
 
-### Screenshot
+### 📷 Screenshot
 
 <img src="assets/main_screenshot.png" style="border-radius: 16px" alt="openjdk" />
 
-### Features
+### 🚀 Features
 
 > - Beauty design
 > - Responsive
@@ -28,7 +28,7 @@
 > - Equalizer presets support
 > - & more ...
 
-### Installation
+### 📥 Installation
 
 > 1. Plaudio need to install **LibVLC** on your system
 >    - on Linux : `sudo apt install vlc`
@@ -44,14 +44,14 @@
 > `Tested on Ubuntu 18-20 & Windows 10-11`
 >
 
-### Build
+### 🔧 Build
 
 > - You need to install (open)jdk-18 on your system
 > - `git clone project`
 > - `cd Plaudio`
 > - `./gradlew run`
 
-### Todo
+### ✅ Todo
 
 > - [ ] TrayIcon
 > - [x] ReSync to merge new files (& folders)
@@ -61,7 +61,7 @@
 > - [x] Light Theme
 > - [ ] YouTube music downloader
 
-### Libraries
+### 📚 Libraries
 
 > - [Odyssey](https://github.com/AlexGladkov/Odyssey) navigations
 > - [Jaudiotagger](https://bitbucket.org/ijabz/jaudiotagger/src/master/README.md) tag editor
@@ -70,6 +70,6 @@
 > - [solarIconsSet](https://www.figma.com/community/file/1166831539721848736) Icons
 > - And I thank compose multiplatform ❤️
 
-## License
+## 🧾 License
 Copyright (C) 2023 SudoDios
 http://www.apache.org/licenses/LICENSE-2.0
