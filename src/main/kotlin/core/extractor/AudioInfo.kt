@@ -37,7 +37,7 @@ object AudioInfo {
         }
     }
 
-    private fun String.artistNameFix () : String {
+    fun String.artistNameFix () : String {
         return trim().ifEmpty {
             "Unknown"
         }
