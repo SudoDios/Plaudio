@@ -12,7 +12,7 @@ import java.io.File
 
 object Global {
 
-    const val APPBAR_HEIGHT = 132
+    const val APPBAR_HEIGHT = 164
     const val SIZE_SMALL = 600
     const val SIZE_NORMAL = 1100
     const val SIZE_LARGE = 1450
@@ -27,9 +27,23 @@ object Global {
 
         var hasAnyTextFieldFocus = false
 
+        /*sort*/
+        const val SORT_NAME_ASC = 0
+        const val SORT_NAME_DESC = 1
+        const val SORT_DURATION_ASC = 2
+        const val SORT_DURATION_DESC = 3
+        var sortType = mutableStateOf(SORT_NAME_ASC)
+
+        /*search type*/
+        const val SEARCH_TYPE_ALL = 0
+        const val SEARCH_TYPE_FOLDERS = 1
+        const val SEARCH_TYPE_ALBUMS = 2
+        const val SEARCH_TYPE_ARTISTS = 3
+        var searchType = mutableStateOf(SEARCH_TYPE_ALL)
+
         /*main*/
         private val audioList = ArrayList<ModelAudio>().apply {
-            addAll(CoreDB.Audios.read())
+            addAll(CoreDB.Audios.read(sortType.value))
         }
         val mostPlayedAudios = SnapshotStateList<ModelAudio>().apply {
             addAll(CoreDB.Audios.readMostPlayed())
@@ -44,7 +58,7 @@ object Global {
         val foldersList = SnapshotStateList<ModelFolder>()
         val albumsList = SnapshotStateList<ModelFolder>()
         val artistsList = SnapshotStateList<ModelFolder>()
-        val playlistsList = SnapshotStateList<ModelFolder>()
+        private val playlistsList = SnapshotStateList<ModelFolder>()
 
         /*states*/
         var currentSearchKeyword = mutableStateOf("")
@@ -53,24 +67,36 @@ object Global {
         /*search & filter*/
         fun refreshAudioList () {
             audioList.clear()
-            audioList.addAll(CoreDB.Audios.read())
+            audioList.addAll(CoreDB.Audios.read(sortType.value))
         }
         fun setData (changeCurrentFolder : Boolean = true,reFilter : Boolean = true) {
             foldersList.clear()
             albumsList.clear()
             artistsList.clear()
             playlistsList.clear()
-            allAudiosFolder.value = ModelFolder(childCunt = audioList.size)
-            favoritesFolder.value = ModelFolder(name = "Favorites", path = "#Fav", childCunt = audioList.count { it.isFav })
+
+            allAudiosFolder.value = ModelFolder(childCunt = audioList.size, duration = audioList.sumOf { it.duration })
+            favoritesFolder.value = ModelFolder(name = "Favorites", path = "#Fav", childCunt = audioList.count { it.isFav },duration = audioList.filter { it.isFav }.sumOf { it.duration })
+
+
             audioList.groupingBy { it.folder }.eachCount().forEach {
-                foldersList.add(ModelFolder(name = it.key.substringAfterLast(File.separator), type = ModelFolder.TYPE_FOLDER, path = it.key, childCunt = it.value))
+                val filter = audioList.filter { filter -> filter.folder == it.key }
+                val sumDuration = filter.sumOf { sum -> sum.duration }
+                foldersList.add(ModelFolder(name = it.key.substringAfterLast(File.separator), type = ModelFolder.TYPE_FOLDER, path = it.key, childCunt = it.value, duration = sumDuration))
             }
+            foldersList.sortBy { it.name.lowercase() }
             audioList.groupingBy { it.album }.eachCount().forEach {
-                albumsList.add(ModelFolder(name = it.key, type = ModelFolder.TYPE_ALBUM, path = it.key, childCunt = it.value))
+                val filter = audioList.filter { filter -> filter.album == it.key }
+                val sumDuration = filter.sumOf { sum -> sum.duration }
+                albumsList.add(ModelFolder(name = it.key, type = ModelFolder.TYPE_ALBUM, path = it.key, childCunt = it.value, duration = sumDuration))
             }
+            albumsList.sortBy { it.name.lowercase() }
             audioList.groupingBy { it.artist }.eachCount().forEach {
-                artistsList.add(ModelFolder(name = it.key, type = ModelFolder.TYPE_ARTIST, path = it.key, childCunt = it.value))
+                val filter = audioList.filter { filter -> filter.artist == it.key }
+                val sumDuration = filter.sumOf { sum -> sum.duration }
+                artistsList.add(ModelFolder(name = it.key, type = ModelFolder.TYPE_ARTIST, path = it.key, childCunt = it.value, duration = sumDuration))
             }
+            artistsList.sortBy { it.name.lowercase() }
             if (changeCurrentFolder) currentFolder.value = allAudiosFolder.value
             if (reFilter) searchOrFilter()
         }
@@ -89,6 +115,7 @@ object Global {
                                 it.artist.lowercase().contains(currentSearchKeyword.value.lowercase())
                     })
                 } else {
+                    searchType.value = SEARCH_TYPE_ALL
                     when (currentFolder.value.path) {
                         "#All" -> filteredAudioList.addAll(audioList)
                         "#Fav" -> filteredAudioList.addAll(audioList.filter { it.isFav })
@@ -108,6 +135,12 @@ object Global {
                     }
                 }
             }
+        }
+
+        fun reFetchMainList () {
+            audioList.clear()
+            audioList.addAll(CoreDB.Audios.read(sortType.value))
+            setData(false, reFilter = true)
         }
 
         fun addOrRemoveFavorite (id : Int,isFav : Boolean) {
