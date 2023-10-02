@@ -26,11 +26,13 @@ import components.*
 import components.menu.RepeatModePopup
 import components.menu.SpeedPlaybackPopup
 import core.CorePlayer
+import core.db.CoreDB
 import dev.icerock.moko.mvvm.livedata.compose.observeAsState
 import ru.alexgladkov.odyssey.compose.extensions.present
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
 import theme.ColorBox
+import utils.Global
 import utils.Prefs
 import utils.Tools
 import utils.Tools.formatToDuration
@@ -319,6 +321,19 @@ private fun Content (
                     CircleDot(Modifier.padding(3.dp).size(8.dp), color = Color.Green)
                 }
             }
+            LikeAnimationIcon(
+                liked = mediaItem.value.isFav,
+                padding = PaddingValues(end = 20.dp),
+                onClicked = {
+                    if (mediaItem.value.isFav) {
+                        CoreDB.Audios.removeFromFav(mediaItem.value.hash)
+                        Global.Data.addOrRemoveFavorite(mediaItem.value.hash, false)
+                    } else {
+                        CoreDB.Audios.addToFav(mediaItem.value.hash)
+                        Global.Data.addOrRemoveFavorite(mediaItem.value.hash, true)
+                    }
+                }
+            )
         }
     }
 }
