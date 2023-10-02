@@ -194,7 +194,7 @@ private fun DrawerFooter(modalController: ModalController) {
                 SearchAudioDialog {
                     modalController.popBackStack(null)
                     Global.Data.refreshAudioList()
-                    Global.Data.setData(true, reFilter = true)
+                    Global.Data.setData(false, reFilter = true)
                 }
             }
         }
