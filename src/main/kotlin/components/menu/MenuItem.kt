@@ -7,20 +7,21 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import theme.ColorBox
 
 @Composable
-fun MenuItem (icon : String,text : String,onClick : () -> Unit) {
+fun MenuItem (icon : String,text : String,iconTint : Color = ColorBox.text.copy(0.7f),onClick : () -> Unit) {
     Row(modifier = Modifier.height(40.dp).fillMaxWidth().widthIn(min = 160.dp).clickable { onClick.invoke() }, verticalAlignment = Alignment.CenterVertically) {
         Spacer(Modifier.padding(6.dp))
         Icon(
             modifier = Modifier.size(22.dp),
             painter = painterResource(icon),
             contentDescription = null,
-            tint = ColorBox.text.copy(0.7f)
+            tint = iconTint
         )
         Spacer(Modifier.padding(6.dp))
         Text(modifier = Modifier.padding(end = 16.dp),text = text, color = ColorBox.text.copy(0.7f), fontSize = 13.sp)
