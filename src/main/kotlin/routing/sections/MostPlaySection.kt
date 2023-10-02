@@ -96,7 +96,7 @@ private fun MostPlayItem(
     modelAudio: ModelAudio
 ) {
 
-    val play = ((playingAudio.id == modelAudio.id) && active)
+    val play = ((playingAudio.hash == modelAudio.hash) && active)
     val bgColor = animateColorAsState(if (play) ColorBox.primary.copy(0.1f) else Color.Transparent)
 
     Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
