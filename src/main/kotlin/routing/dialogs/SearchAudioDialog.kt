@@ -2,17 +2,22 @@ package routing.dialogs
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import components.AnimatedText
@@ -147,17 +152,31 @@ fun SearchAudioDialog(onFinished: () -> Unit) {
                 }
             }
         }
-        Button(
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp).fillMaxWidth(),
-            shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.buttonColors(contentColor = ColorBox.primaryDark),
-            enabled = !isSearching,
-            onClick = {
-                isSearching = !isSearching
-                AudioStore.findAudios(Global.userHome)
-            }
+        Box(
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
+                .fillMaxWidth().height(36.dp)
+                .alpha(if (isSearching) 0.5f else 1f)
+                .clip(RoundedCornerShape(50))
+                .background(ColorBox.primary)
+                .clickable(
+                    enabled = !isSearching,
+                    indication = rememberRipple(
+                        color = ColorBox.primaryDark
+                    ),
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    isSearching = !isSearching
+                    AudioStore.findAudios(Global.userHome)
+                },
+            contentAlignment = Alignment.Center
         ) {
-            Text("Start sync device files")
+            Text(
+                text = "Start sync device files",
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                letterSpacing = 1.25.sp,
+                color = ColorBox.primaryDark
+            )
         }
     }
 
