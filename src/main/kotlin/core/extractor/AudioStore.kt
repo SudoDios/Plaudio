@@ -9,11 +9,13 @@ import utils.Tools.md5
 import java.io.IOException
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
+import kotlin.io.path.isReadable
+import kotlin.io.path.isWritable
 import kotlin.io.path.name
 
 object AudioStore {
 
-    private val supportedFormats = arrayListOf("mp3","m4a","ogg")
+    private val supportedFormats = arrayListOf("mp3","m4a","ogg","wav","flac")
     private val arrayFind = ArrayList<ModelAudio>()
     lateinit var callback: Callback
 
@@ -65,16 +67,18 @@ object AudioStore {
                 return super.preVisitDirectory(dir, attrs)
             }
             override fun visitFile(fileIn: Path, attrs: BasicFileAttributes?): FileVisitResult {
-                val format = fileIn.name.substringAfterLast(".").lowercase()
-                if (supportedFormats.contains(format)) {
-                    val file = fileIn.toFile()
-                    val modelAudio = AudioInfo.getInfo(file)
-                    if (modelAudio != null && modelAudio.duration > 9000) {
-                        modelAudio.hash = file.md5()
-                        arrayFind.add(modelAudio)
-                    }
-                    if (this@AudioStore::callback.isInitialized) {
-                        callback.onCounting(arrayFind)
+                if (fileIn.isWritable() && fileIn.isReadable()) {
+                    val format = fileIn.name.substringAfterLast(".").lowercase()
+                    if (supportedFormats.contains(format)) {
+                        val file = fileIn.toFile()
+                        val modelAudio = AudioInfo.getInfo(file)
+                        if (modelAudio != null && modelAudio.duration > 9000) {
+                            modelAudio.hash = file.md5()
+                            arrayFind.add(modelAudio)
+                        }
+                        if (this@AudioStore::callback.isInitialized) {
+                            callback.onCounting(arrayFind)
+                        }
                     }
                 }
                 return super.visitFile(fileIn, attrs)
