@@ -52,7 +52,8 @@ fun AudioListSection(
 ) {
 
     val modalController = LocalRootController.current.findModalController()
-    var showListPopup by remember { mutableStateOf(Pair(false, ModelAudio())) }
+    var showListPopup by remember { mutableStateOf(false) }
+    var selectedItem by remember { mutableStateOf(ModelAudio()) }
 
     if (Global.Data.filteredAudioList.isEmpty()) {
         Column(
@@ -85,7 +86,8 @@ fun AudioListSection(
         ) {
             items(Global.Data.filteredAudioList) {
                 AudioRow(it, playingMediaItem, showAlbumName, isPlaying, visiblePlayer) {
-                    showListPopup = Pair(true, it)
+                    selectedItem = it
+                    showListPopup = true
                 }
             }
         }
@@ -93,25 +95,26 @@ fun AudioListSection(
 
     AudioListPopup(
         show = showListPopup,
+        isFav = selectedItem.isFav,
         onDismissRequest = {
-            showListPopup = Pair(false, ModelAudio())
+            showListPopup = false
         }
-    ) { index, modelAudio ->
-        showListPopup = Pair(false, modelAudio)
+    ) { index ->
+        showListPopup = false
         when (index) {
             0 -> {
-                CoreDB.Audios.removeFromFav(modelAudio.hash)
-                Global.Data.addOrRemoveFavorite(modelAudio.hash, false)
+                CoreDB.Audios.removeFromFav(selectedItem.hash)
+                Global.Data.addOrRemoveFavorite(selectedItem.hash, false)
             }
             1 -> {
-                CoreDB.Audios.addToFav(modelAudio.hash)
-                Global.Data.addOrRemoveFavorite(modelAudio.hash, true)
+                CoreDB.Audios.addToFav(selectedItem.hash)
+                Global.Data.addOrRemoveFavorite(selectedItem.hash, true)
             }
             2 -> {
                 //edit
                 modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
                     EditTagsDialog(
-                        modelAudio = modelAudio.copy(),
+                        modelAudio = selectedItem.copy(),
                         closeClicked = {
                             modalController.popBackStack(null)
                         },
@@ -131,7 +134,7 @@ fun AudioListSection(
             3 -> {
                 //info
                 modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
-                    AudioInfoDialog(modelAudio) {
+                    AudioInfoDialog(selectedItem) {
                         modalController.popBackStack(null)
                     }
                 }
