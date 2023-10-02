@@ -5,7 +5,9 @@ import core.db.models.ModelAudio
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import utils.Global
 import utils.Tools.md5
+import java.io.File
 import java.io.IOException
 import java.nio.file.*
 import java.nio.file.attribute.BasicFileAttributes
@@ -25,6 +27,9 @@ object AudioStore {
         countFolderSearch = 0
         CoroutineScope(Dispatchers.IO).launch {
             arrayFind.clear()
+            val coverPaths = File(Global.coverPaths)
+            coverPaths.deleteRecursively()
+            coverPaths.mkdirs()
             val oldAudioList = CoreDB.Audios.read()
             if (oldAudioList.isEmpty()) {
                 //find & save
