@@ -32,6 +32,7 @@ import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
 import theme.ColorBox
 import utils.Tools
+import utils.Tools.md5
 import java.io.File
 
 @Composable
@@ -86,12 +87,13 @@ fun EditTagsDialog(
                         audioFile.tag.setField(FieldKey.ARTIST,artist)
                         audioFile.tag.setField(FieldKey.ALBUM,album)
                         AudioFileIO.write(audioFile)
-                        val newSize = File(modelAudio.path).length()
+                        val newFile = File(modelAudio.path)
                         modelAudio.name = title
                         modelAudio.artist = artist.artistNameFix()
                         modelAudio.album = album.artistNameFix()
                         modelAudio.coverArt = cover
-                        modelAudio.size = newSize
+                        modelAudio.size = newFile.length()
+                        modelAudio.hash = newFile.md5()
                         CoreDB.Audios.update(modelAudio)
                         onEdited.invoke(modelAudio)
                     },
