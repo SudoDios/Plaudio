@@ -52,7 +52,7 @@ object CorePlayer {
                         }
                         Prefs.REPEAT_MODE_ONE -> {
                             Tools.postDelayed(200) {
-                                startPlay(currentMediaItemCallback.value,null)
+                                startPlay(currentMediaItemCallback.value,index = null)
                             }
                         }
                         Prefs.REPEAT_MODE_SHUFFLE -> {
@@ -96,7 +96,7 @@ object CorePlayer {
         }
 
     private var job : Job? = null
-    fun startPlay (musicItem: ModelAudio,index: Int? = null) {
+    fun startPlay (musicItem: ModelAudio,from : Float = 0f,index: Int? = null) {
         listIndexCallback.value = index
         currentMediaItemCallback.value = musicItem
         visiblePlayer.value = true
@@ -107,6 +107,7 @@ object CorePlayer {
             viewModify.start()
             audioPlayerComponent.mediaPlayer().media().prepare(musicItem.path)
             audioPlayerComponent.mediaPlayer().controls().play()
+            audioPlayerComponent.mediaPlayer().controls().setPosition(from)
         }
     }
 
@@ -199,11 +200,11 @@ object CorePlayer {
 
     fun next () {
         if (Global.Data.filteredAudioList.isNotEmpty()) {
-            val currentIndex = Global.Data.filteredAudioList.indexOfFirst { it.id ==  currentMediaItemCallback.value.id }
+            val currentIndex = Global.Data.filteredAudioList.indexOfFirst { it.hash ==  currentMediaItemCallback.value.hash }
             if (currentIndex == -1 || currentIndex == (Global.Data.filteredAudioList.size - 1)) {
-                startPlay(Global.Data.filteredAudioList[0],0)
+                startPlay(Global.Data.filteredAudioList[0],index = 0)
             } else {
-                startPlay(Global.Data.filteredAudioList[currentIndex+1],currentIndex+1)
+                startPlay(Global.Data.filteredAudioList[currentIndex+1], index = currentIndex+1)
             }
         }
     }
@@ -211,7 +212,7 @@ object CorePlayer {
     private fun shuffle () {
         if (Global.Data.filteredAudioList.isNotEmpty()) {
             val shuffleItem = Global.Data.filteredAudioList.random()
-            startPlay(shuffleItem,null)
+            startPlay(shuffleItem,index = null)
         }
     }
 
@@ -220,14 +221,14 @@ object CorePlayer {
             seekTo(0f)
         } else {
             if (Global.Data.filteredAudioList.isNotEmpty()) {
-                val currentIndex = Global.Data.filteredAudioList.indexOfFirst { it.id == currentMediaItemCallback.value.id }
+                val currentIndex = Global.Data.filteredAudioList.indexOfFirst { it.hash == currentMediaItemCallback.value.hash }
                 if (currentIndex == -1) {
-                    startPlay(Global.Data.filteredAudioList[0],0)
+                    startPlay(Global.Data.filteredAudioList[0],index = 0)
                 } else {
                     if (currentIndex == 0) {
-                        startPlay(Global.Data.filteredAudioList.last(), Global.Data.filteredAudioList.size)
+                        startPlay(Global.Data.filteredAudioList.last(),index =  Global.Data.filteredAudioList.size)
                     } else {
-                        startPlay(Global.Data.filteredAudioList[currentIndex-1],currentIndex-1)
+                        startPlay(Global.Data.filteredAudioList[currentIndex-1],index = currentIndex-1)
                     }
                 }
             }

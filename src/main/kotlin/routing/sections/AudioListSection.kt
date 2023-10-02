@@ -100,21 +100,13 @@ fun AudioListSection(
         showListPopup = Pair(false, modelAudio)
         when (index) {
             0 -> {
-                CoreDB.Audios.removeFromFav(modelAudio.id)
-                val indexFilter = Global.Data.filteredAudioList.indexOfFirst { it.id == modelAudio.id }
-                Global.Data.filteredAudioList[indexFilter] =
-                    Global.Data.filteredAudioList[indexFilter].copy(isFav = false)
-                Global.Data.addOrRemoveFavorite(modelAudio.id, false)
+                CoreDB.Audios.removeFromFav(modelAudio.hash)
+                Global.Data.addOrRemoveFavorite(modelAudio.hash, false)
             }
-
             1 -> {
-                CoreDB.Audios.addToFav(modelAudio.id)
-                val indexFilter = Global.Data.filteredAudioList.indexOfFirst { it.id == modelAudio.id }
-                Global.Data.filteredAudioList[indexFilter] =
-                    Global.Data.filteredAudioList[indexFilter].copy(isFav = true)
-                Global.Data.addOrRemoveFavorite(modelAudio.id, true)
+                CoreDB.Audios.addToFav(modelAudio.hash)
+                Global.Data.addOrRemoveFavorite(modelAudio.hash, true)
             }
-
             2 -> {
                 //edit
                 modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
@@ -124,11 +116,10 @@ fun AudioListSection(
                             modalController.popBackStack(null)
                         },
                         onEdited = { editedAudio ->
-                            val indexFilter = Global.Data.filteredAudioList.indexOfFirst { it.id == modelAudio.id }
-                            Global.Data.filteredAudioList[indexFilter] = editedAudio
                             if (playingMediaItem.id == editedAudio.id) {
+                                val currentPos = CorePlayer.progressCallback.value
                                 CorePlayer.currentMediaItemCallback.value = editedAudio
-                                CorePlayer.startPlay(editedAudio)
+                                CorePlayer.startPlay(editedAudio, from = currentPos)
                             }
                             Global.Data.editedAudio(editedAudio)
                             modalController.popBackStack(null)
@@ -159,10 +150,10 @@ private fun AudioRow(
     onMoreClick: () -> Unit
 ) {
 
-    val play = (isPlaying && (playingAudio.id == modelAudio.id) && active)
+    val play = (isPlaying && (playingAudio.hash == modelAudio.hash) && active)
 
     val animColorState =
-        animateFloatAsState(if ((playingAudio.id == modelAudio.id) && active) 1f else 0f, animationSpec = tween(400))
+        animateFloatAsState(if ((playingAudio.hash == modelAudio.hash) && active) 1f else 0f, animationSpec = tween(400))
     val backgroundColor = lerp(ColorBox.card, ColorBox.text, animColorState.value)
     val textColor = lerp(ColorBox.text, ColorBox.card, animColorState.value)
 
@@ -183,7 +174,7 @@ private fun AudioRow(
                 .clip(RoundedCornerShape(50))
                 .background(ColorBox.primaryDark)
                 .clickable {
-                    if (playingAudio.id == modelAudio.id) {
+                    if (playingAudio.hash == modelAudio.hash) {
                         CorePlayer.autoPlayPause()
                     } else {
                         CorePlayer.startPlay(modelAudio)
