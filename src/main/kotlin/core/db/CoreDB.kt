@@ -105,19 +105,19 @@ object CoreDB {
             }
         }
 
-        fun addToFav (id : Int) {
+        fun addToFav (hash: String) {
             val statement = connection.createStatement()
             try {
-                statement.executeUpdate("update audios set isFav = true where id = '$id'")
+                statement.executeUpdate("update audios set isFav = true where hash = '$hash'")
             } catch (_ : Exception) {} finally {
                 statement.close()
             }
         }
 
-        fun removeFromFav (id : Int) {
+        fun removeFromFav (hash: String) {
             val statement = connection.createStatement()
             try {
-                statement.executeUpdate("update audios set isFav = false where id = '$id'")
+                statement.executeUpdate("update audios set isFav = false where hash = '$hash'")
             } catch (_ : Exception) {} finally {
                 statement.close()
             }

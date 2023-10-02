@@ -2,6 +2,7 @@ package utils
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import core.CorePlayer
 import core.db.CoreDB
 import core.db.models.ModelAudio
 import core.db.models.ModelFolder
@@ -143,8 +144,17 @@ object Global {
             setData(false, reFilter = true)
         }
 
-        fun addOrRemoveFavorite (id : Int,isFav : Boolean) {
-            val indexMain = audioList.indexOfFirst { it.id == id }
+        fun addOrRemoveFavorite (hash : String,isFav : Boolean) {
+            val indexFilter = filteredAudioList.indexOfFirst { it.hash == hash }
+            if (indexFilter != -1) {
+                filteredAudioList[indexFilter] = filteredAudioList[indexFilter].copy(isFav = isFav)
+            }
+
+            if (CorePlayer.currentMediaItemCallback.value.hash == hash) {
+                CorePlayer.currentMediaItemCallback.value = CorePlayer.currentMediaItemCallback.value.copy(isFav = isFav)
+            }
+
+            val indexMain = audioList.indexOfFirst { it.hash == hash }
             audioList[indexMain].isFav = isFav
             val newFavCount = if (isFav) {
                 favoritesFolder.value.childCunt + 1
@@ -159,6 +169,11 @@ object Global {
         }
 
         fun editedAudio (modelAudio: ModelAudio) {
+            val indexFilter = filteredAudioList.indexOfFirst { it.id == modelAudio.id }
+            if (indexFilter != -1) {
+                filteredAudioList[indexFilter] = modelAudio
+            }
+
             val indexMain = audioList.indexOfFirst { it.id == modelAudio.id }
             audioList[indexMain] = modelAudio
             val indexMostPlayed = mostPlayedAudios.indexOfFirst { it.id == modelAudio.id }
