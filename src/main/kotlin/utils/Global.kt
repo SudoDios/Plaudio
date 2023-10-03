@@ -23,6 +23,7 @@ object Global {
     val coverPaths : String get() = "$userHome/.plaudio/covers"
     val dbPath : String get() = "$userHome/.plaudio/db"
     val prefsPath : String get() = "$userHome/.plaudio/prefs"
+    val convertPath : String get() = "$userHome/.plaudio/conv"
 
     object Data {
 
