@@ -25,6 +25,8 @@ import utils.Tools.formatToDurationInfo
 
 @Composable
 fun SearchListSection(
+    visiblePlayer : Boolean,
+    maxWidth: Int,
     gridCount : Int
 ) {
 
@@ -58,7 +60,7 @@ fun SearchListSection(
             start = 6.dp,
             end = 6.dp,
             top = (Global.APPBAR_HEIGHT + 6).dp,
-            bottom = 6.dp
+            bottom = if (visiblePlayer && maxWidth < Global.SIZE_NORMAL) 80.dp else 6.dp
         )) {
             items(filteredList) {
                 FolderItem(it)

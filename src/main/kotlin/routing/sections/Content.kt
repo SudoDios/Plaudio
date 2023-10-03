@@ -52,7 +52,11 @@ fun BoxWithConstraintsScope.Content(
                 ) {
                     if (Global.Data.searchType.value != Global.Data.SEARCH_TYPE_ALL) {
                         val gridCount = floor(maxWidth.value.toDouble() / 184.0)
-                        SearchListSection(gridCount.toInt())
+                        SearchListSection(
+                            visiblePlayer = visiblePlayer.value,
+                            this@Content.maxWidth.value.toInt(),
+                            gridCount.toInt()
+                        )
                     } else {
                         AudioListSection(
                             visiblePlayer.value,
