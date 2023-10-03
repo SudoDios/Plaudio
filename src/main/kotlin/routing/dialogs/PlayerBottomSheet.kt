@@ -199,7 +199,7 @@ private fun Content (
             overflow = TextOverflow.Ellipsis,
             fontSize = 13.sp
         )
-        DurationLayout(mediaItem.value)
+        DurationLayout(mediaItem.value.path,mediaItem.value.hash,mediaItem.value.duration)
         Row(
             modifier = Modifier.padding(start = 20.dp,bottom = 4.dp,end = 20.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -341,7 +341,7 @@ private fun Content (
 }
 
 @Composable
-private fun DurationLayout (mediaItem : ModelAudio) {
+private fun DurationLayout (path : String,hash : String,duration : Long) {
 
     var progressSeekValue by remember { mutableStateOf(0f) }
     var isSeeking by remember { mutableStateOf(false) }
@@ -349,9 +349,9 @@ private fun DurationLayout (mediaItem : ModelAudio) {
     val currentProgress = CorePlayer.progressCallback.observeAsState()
 
     var waveform by remember { mutableStateOf(ArrayList<Float>()) }
-    LaunchedEffect(mediaItem) {
+    LaunchedEffect(hash) {
         waveform.clear()
-        WaveformGenerator.generate(mediaItem.path,mediaItem.hash) {
+        WaveformGenerator.generate(path,hash) {
             waveform = ArrayList(it.toList())
         }
     }
@@ -359,8 +359,8 @@ private fun DurationLayout (mediaItem : ModelAudio) {
     Row(
         modifier = Modifier.padding(start = 25.dp, end = 25.dp, top = 16.dp, bottom = 16.dp).fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically) {
-        val pos = (currentProgress.value * mediaItem.duration).toLong().formatToDuration()
-        val dur = mediaItem.duration.formatToDuration()
+        val pos = (currentProgress.value * duration).toLong().formatToDuration()
+        val dur = duration.formatToDuration()
         Text(
             text = pos,
             color = ColorBox.text.copy(0.7f),
