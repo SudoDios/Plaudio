@@ -69,9 +69,13 @@ fun PlayerBottomSheet(
         }
     )
 
-
     val isActive = CorePlayer.visiblePlayer.observeAsState()
 
+    LaunchedEffect(isActive.value) {
+        if (!isActive.value) {
+            onClose.invoke()
+        }
+    }
 
     val baseModifier = if (isOnBoard) {
         Modifier.padding(12.dp).width(400.dp).clip(RoundedCornerShape(16.dp)).background(ColorBox.primaryDark2)
