@@ -65,9 +65,13 @@ object AudioStore {
     private fun recursiveWalk (dir : String) {
         Files.walkFileTree(Paths.get(dir),object : SimpleFileVisitor<Path>() {
             override fun preVisitDirectory(dir: Path?, attrs: BasicFileAttributes?): FileVisitResult {
-                countFolderSearch++
-                if (this@AudioStore::callback.isInitialized) {
-                    callback.onCountingFolder(countFolderSearch)
+                if (dir!!.name == ".plaudio") {
+                    return FileVisitResult.SKIP_SUBTREE
+                } else {
+                    countFolderSearch++
+                    if (this@AudioStore::callback.isInitialized) {
+                        callback.onCountingFolder(countFolderSearch)
+                    }
                 }
                 return super.preVisitDirectory(dir, attrs)
             }
@@ -89,7 +93,7 @@ object AudioStore {
                 return super.visitFile(fileIn, attrs)
             }
             override fun postVisitDirectory(dir: Path?, exc: IOException?): FileVisitResult {
-                if (exc is AccessDeniedException) {
+                if (exc is AccessDeniedException || dir!!.name == ".plaudio") {
                     return FileVisitResult.SKIP_SUBTREE
                 }
                 return super.postVisitDirectory(dir, exc)
