@@ -27,6 +27,7 @@ import components.menu.RepeatModePopup
 import components.menu.SpeedPlaybackPopup
 import core.CorePlayer
 import core.db.CoreDB
+import core.db.models.ModelAudio
 import dev.icerock.moko.mvvm.livedata.compose.observeAsState
 import ru.alexgladkov.odyssey.compose.extensions.present
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
@@ -37,6 +38,8 @@ import utils.Prefs
 import utils.Tools
 import utils.Tools.formatToDuration
 import utils.Tools.roundPlace
+import utils.spectrum.WaveformGenerator
+import java.io.File
 
 @Composable
 fun PlayerBottomSheet(
@@ -197,7 +200,7 @@ private fun Content (
             overflow = TextOverflow.Ellipsis,
             fontSize = 13.sp
         )
-        DurationLayout(mediaItem.value.duration)
+        DurationLayout(mediaItem.value)
         Row(
             modifier = Modifier.padding(start = 20.dp,bottom = 4.dp,end = 20.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -339,18 +342,26 @@ private fun Content (
 }
 
 @Composable
-private fun DurationLayout (duration : Long) {
+private fun DurationLayout (mediaItem : ModelAudio) {
 
     var progressSeekValue by remember { mutableStateOf(0f) }
     var isSeeking by remember { mutableStateOf(false) }
 
     val currentProgress = CorePlayer.progressCallback.observeAsState()
 
+    var waveform by remember { mutableStateOf(ArrayList<Float>()) }
+    LaunchedEffect(mediaItem) {
+        waveform.clear()
+        WaveformGenerator.generate(mediaItem.path,mediaItem.hash) {
+            waveform = ArrayList(it.toList())
+        }
+    }
+
     Row(
         modifier = Modifier.padding(start = 25.dp, end = 25.dp, top = 16.dp, bottom = 16.dp).fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically) {
-        val pos = (currentProgress.value * duration).toLong().formatToDuration()
-        val dur = duration.formatToDuration()
+        val pos = (currentProgress.value * mediaItem.duration).toLong().formatToDuration()
+        val dur = mediaItem.duration.formatToDuration()
         Text(
             text = pos,
             color = ColorBox.text.copy(0.7f),
@@ -359,6 +370,7 @@ private fun DurationLayout (duration : Long) {
         CustomSlider(
             modifier = Modifier.padding(start = 20.dp, end = 20.dp).weight(1f),
             value = if (isSeeking) progressSeekValue else currentProgress.value,
+            waveformData = waveform,
             trackColor = ColorBox.text,
             thumbColor = ColorBox.text,
             thumbSize = 8.dp,
