@@ -27,6 +27,7 @@ object CoreDB {
         val statement = connection.createStatement()
         try {
             statement.executeUpdate("DROP TABLE IF EXISTS audios")
+            statement.executeUpdate("DROP TABLE IF EXISTS waveforms")
             statement.executeUpdate("DROP TABLE IF EXISTS playlists")
         } catch (_: Exception) {} finally {
             statement.close()
@@ -55,26 +56,72 @@ object CoreDB {
                     "name TEXT," +
                     "childes TEXT" +
                     ")")
+            statement.executeUpdate("CREATE TABLE IF NOT EXISTS waveforms(" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                    "hash TEXT," +
+                    "wave TEXT" +
+                    ")")
         } catch (_ : Exception) {} finally {
             statement.close()
         }
     }
 
-    object Audios {
+    object Waveforms {
 
-        fun insert (ma: ModelAudio) {
-            val statement = connection.createStatement()
+        fun saveWaveform (hash: String,waveform : FloatArray) {
+            val statement = connection.prepareStatement("INSERT INTO waveforms (hash,wave) VALUES (?,?)")
             try {
-                statement.executeUpdate("insert into audios " +
-                        "(name,path,folder,artist,album,size,duration,coverArt,isFav,hash,playCount,format) " +
-                        "values " +
-                        "('${ma.name}','${ma.path}','${ma.folder}','${ma.artist}','${ma.album}'," +
-                        "${ma.size},${ma.duration},'${ma.coverArt}',${ma.isFav},'${ma.hash}',${ma.playCount}," +
-                        "'${ma.format}')")
+                statement.setString(1,hash)
+                statement.setString(2,Gson().toJson(waveform))
+                statement.executeUpdate()
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
                 statement.close()
+            }
+        }
+
+        fun getWaveform (hash: String) : FloatArray? {
+            val statement = connection.prepareStatement("SELECT wave FROM waveforms where hash=?")
+            statement.setString(1,hash)
+            val query = statement.executeQuery()
+            val wave = query.getString("wave")
+            statement.close()
+            return if (wave != null) {
+                Gson().fromJson(wave, FloatArray::class.java)
+            } else {
+                null
+            }
+        }
+
+    }
+
+    object Audios {
+
+        fun insert (ma: ModelAudio) {
+            val query = "insert into audios " +
+                    "(name,path,folder,artist,album,size,duration,coverArt,isFav,hash,playCount,format) " +
+                    "values " +
+                    "(?,?,?,?,?,?,?,?,?,?,?,?)"
+            val preparedStatement = connection.prepareStatement(query)
+            try {
+                preparedStatement.setString(1,ma.name)
+                preparedStatement.setString(2,ma.path)
+                preparedStatement.setString(3,ma.folder)
+                preparedStatement.setString(4,ma.artist)
+                preparedStatement.setString(5,ma.album)
+                preparedStatement.setLong(6,ma.size)
+                preparedStatement.setLong(7,ma.duration)
+                preparedStatement.setString(8,ma.coverArt)
+                preparedStatement.setBoolean(9,ma.isFav)
+                preparedStatement.setString(10,ma.hash)
+                preparedStatement.setInt(11,ma.playCount)
+                preparedStatement.setString(12,ma.format)
+                preparedStatement.executeUpdate()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                preparedStatement.close()
             }
         }
 
@@ -90,16 +137,24 @@ object CoreDB {
         }
 
         fun update (modelAudio: ModelAudio) {
-            val statement = connection.createStatement()
+            val query = "update audios set " +
+                    "name=?," +
+                    "artist=?," +
+                    "album=?," +
+                    "size=?," +
+                    "coverArt=?," +
+                    "hash=? " +
+                    "where id=?"
+            val statement = connection.prepareStatement(query)
             try {
-                statement.executeUpdate("update audios set " +
-                        "name='${modelAudio.name}'," +
-                        "artist='${modelAudio.artist}'," +
-                        "album='${modelAudio.album}'," +
-                        "size='${modelAudio.size}'," +
-                        "coverArt='${modelAudio.coverArt}'," +
-                        "hash='${modelAudio.hash}'" +
-                        " where id='${modelAudio.id}'")
+                statement.setString(1,modelAudio.name)
+                statement.setString(2,modelAudio.artist)
+                statement.setString(3,modelAudio.album)
+                statement.setLong(4,modelAudio.size)
+                statement.setString(5,modelAudio.coverArt)
+                statement.setString(6,modelAudio.hash)
+                statement.setInt(7,modelAudio.id)
+                statement.executeUpdate()
             } catch (_ : Exception) {} finally {
                 statement.close()
             }

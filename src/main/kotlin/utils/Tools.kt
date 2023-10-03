@@ -19,7 +19,13 @@ import kotlin.math.pow
 
 object Tools {
 
-    private fun getRandomString(length: Int = 12) : String {
+    fun getOvershotInterpolator (tension : Float = 2f,t : Float) : Float {
+        var s = t
+        s -= 1.0f
+        return s * s * ((tension + 1) * s + tension) + 1.0f
+    }
+
+    fun getRandomString(length: Int = 12) : String {
         val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
         return (1..length)
             .map { allowedChars.random() }
