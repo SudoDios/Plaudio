@@ -37,9 +37,9 @@
 >      - install downloaded vlc exe file
 > 
 > 2. Download Plaudio
->     - Debian based linux (**DEB** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.3.0/plaudio_1.3.0_amd64.deb)
->     - Linux (**AppImage** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.3.0/plaudio_1.3.0_x86_64.AppImage)
->     - Windows (**EXE** installer) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.3.0/plaudio_1.3.0_installer_win.exe)
+>     - Debian based linux (**DEB** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.4.0/plaudio_1.4.0_amd64.deb)
+>     - Linux (**AppImage** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.4.0/plaudio_1.4.0_x86_64.AppImage)
+>     - Windows (**EXE** installer) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.4.0/plaudio_1.4.0_installer_win.exe)
 > 
 > `Tested on Ubuntu 18-20 & Windows 10-11`
 >
