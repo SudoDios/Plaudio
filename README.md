@@ -19,7 +19,7 @@
 
 ### 🚀 Features
 
-> - Beauty design
+> - Beautiful design
 > - Responsive
 > - Searching all your audios in (MP3,M4A,OGG) Formats
 > - Fetching all folders contains audios
