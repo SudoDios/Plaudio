@@ -21,7 +21,7 @@
 
 > - Beautiful design
 > - Responsive
-> - Searching all your audios in (MP3,M4A,OGG) Formats
+> - Searching all your audios in (MP3,M4A,OGG,WAV,FLAC) Formats
 > - Fetching all folders contains audios
 > - Fetching albums & artists from audios
 > - You can edit audios (IDV3) tags
