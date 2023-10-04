@@ -51,6 +51,13 @@
 > - `cd Plaudio`
 > - `./gradlew run`
 
+### 🌊 Waveform (optional)
+
+<img src="assets/waveform_seekbar.png" width="160" alt="openjdk" />
+
+> - If you want to show plaudio waves, **ffmpeg** must be installed on your system
+> - plaudio does the rest
+
 ### ✅ Todo
 
 > - [ ] TrayIcon
