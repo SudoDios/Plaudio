@@ -80,6 +80,7 @@ fun EditTagsDialog(
                     .clickable {
                         //save changes
                         if (isChangedCover) {
+                            audioFile.tag.deleteArtworkField()
                             audioFile.tag.setField(ArtworkFactory.createArtworkFromFile(File(cover!!)))
                             cover = Tools.writeThumbImage(File(cover!!).readBytes(),cover!!.substringAfterLast("."))
                         }
