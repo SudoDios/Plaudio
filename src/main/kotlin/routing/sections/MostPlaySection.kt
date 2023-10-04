@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -101,10 +102,11 @@ private fun MostPlayItem(
 
     Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
         Text(
-            modifier = Modifier.padding(start = 8.dp,end = 8.dp),
+            modifier = Modifier.padding(start = 8.dp,end = 8.dp).width(40.dp),
             text = modelAudio.playCount.toString(),
             color = ColorBox.text.copy(0.8f),
-            fontSize = 12.sp
+            fontSize = 12.sp,
+            textAlign = TextAlign.Center
         )
         Row(
             Modifier.padding(5.dp).fillMaxWidth().clip(RoundedCornerShape(50)).background(bgColor.value).clickable {
