@@ -8,8 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
@@ -21,24 +20,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import core.db.CoreDB
 import kotlinx.coroutines.delay
+import moe.tlaster.precompose.navigation.Navigator
+import routing.dialogs.BaseDialog
 import routing.dialogs.SearchAudioDialog
-import ru.alexgladkov.odyssey.compose.extensions.present
-import ru.alexgladkov.odyssey.compose.local.LocalRootController
-import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
 import utils.Tools
 
 @Composable
-fun ScreenSplash() {
+fun ScreenSplash(navigator: Navigator) {
 
-    val rootController = LocalRootController.current
-    val modalController = rootController.findModalController()
+    var showSyncDialog by remember { mutableStateOf(false) }
 
     val audioCount = CoreDB.Audios.count()
 
     if (audioCount > 0) {
         LaunchedEffect(Unit) {
             delay(600)
-            rootController.present(Routes.HOME)
+            navigator.navigate(Routes.HOME)
         }
     }
 
@@ -77,20 +74,7 @@ fun ScreenSplash() {
                     .clip(RoundedCornerShape(50))
                     .background(Color.White.copy(0.1f))
                     .clickable {
-                        modalController.present(
-                            AlertConfiguration(
-                                cornerRadius = 6,
-                                alpha = 0.6f,
-                                closeOnBackdropClick = false
-                            )
-                        ) {
-                            SearchAudioDialog { ->
-                                modalController.popBackStack(null)
-                                Tools.postDelayed(500) {
-                                    rootController.present(Routes.HOME)
-                                }
-                            }
-                        }
+                        showSyncDialog = true
                     },
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -109,6 +93,22 @@ fun ScreenSplash() {
                 )
             }
         }
+    }
+
+    BaseDialog(
+        expanded = showSyncDialog
+    ) {
+        SearchAudioDialog(
+            onFinished = {
+                showSyncDialog = false
+                Tools.postDelayed(500) {
+                    navigator.navigate(Routes.HOME)
+                }
+            },
+            onClose = {
+                showSyncDialog = false
+            }
+        )
     }
 
 }

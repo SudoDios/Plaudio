@@ -11,11 +11,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,14 +28,10 @@ import androidx.compose.ui.unit.sp
 import components.CircleDot
 import components.MyIconButton
 import core.db.models.ModelFolder
-import core.db.models.ModelPlaylist
 import routing.dialogs.AboutDialog
-import routing.dialogs.CreatePlaylistDialog
+import routing.dialogs.BaseDialog
 import routing.dialogs.SearchAudioDialog
-import ru.alexgladkov.odyssey.compose.controllers.ModalController
-import ru.alexgladkov.odyssey.compose.extensions.present
-import ru.alexgladkov.odyssey.compose.local.LocalRootController
-import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
+import routing.dialogs.YTDownloaderDialog
 import theme.ColorBox
 import theme.Fonts
 import ui.components.DayNightAnimationIcon
@@ -48,8 +41,6 @@ import utils.clickable
 @Composable
 fun Drawer(callback: () -> Unit) {
 
-    val modalController = LocalRootController.current.findModalController()
-
     Column(
         modifier = Modifier
             .width(300.dp)
@@ -58,7 +49,8 @@ fun Drawer(callback: () -> Unit) {
     ) {
         DrawerHeader()
         DrawerBody(callback)
-        DrawerFooter(modalController)
+        YoutubeButton()
+        DrawerFooter()
     }
 
 }
@@ -158,7 +150,48 @@ private fun ColumnScope.DrawerBody(callback: () -> Unit) {
 }
 
 @Composable
-private fun DrawerFooter(modalController: ModalController) {
+private fun YoutubeButton() {
+
+    var showDialog by remember { mutableStateOf(false) }
+
+    Row(Modifier.padding(12.dp).fillMaxWidth().height(48.dp).clip(RoundedCornerShape(50))
+        .background(ColorBox.YOUTUBE_COLOR.copy(0.1f))
+        .clickable {
+            showDialog = true
+        }, verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            modifier = Modifier.padding(start = 12.dp),
+            painter = painterResource("icons/youtube.svg"),
+            contentDescription = null,
+            tint = ColorBox.YOUTUBE_COLOR
+        )
+        Text(
+            modifier = Modifier.padding(start = 10.dp, end = 10.dp),
+            text = "YouTube Downloader",
+            fontSize = 14.sp,
+            color = ColorBox.text
+        )
+    }
+
+    //Yt-dl
+    BaseDialog(
+        expanded = showDialog,
+        onDismissRequest = {
+            showDialog = false
+        }
+    ) {
+        YTDownloaderDialog {
+            showDialog = false
+        }
+    }
+}
+
+@Composable
+private fun DrawerFooter() {
+
+    var showSyncDialog by remember { mutableStateOf(false) }
+    var showInfoDialog by remember { mutableStateOf(false) }
+
     Row(Modifier.fillMaxWidth().background(ColorBox.card).clickable()) {
         Row(
             Modifier
@@ -190,13 +223,7 @@ private fun DrawerFooter(modalController: ModalController) {
             padding = PaddingValues(top = 12.dp, bottom = 12.dp, end = 6.dp),
             icon = "icons/refresh.svg"
         ) {
-            modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 7)) {
-                SearchAudioDialog {
-                    modalController.popBackStack(null)
-                    Global.Data.refreshAudioList()
-                    Global.Data.setData(false, reFilter = true)
-                }
-            }
+            showSyncDialog = true
         }
         MyIconButton(
             size = 44.dp,
@@ -204,11 +231,33 @@ private fun DrawerFooter(modalController: ModalController) {
             padding = PaddingValues(top = 12.dp, bottom = 12.dp, end = 8.dp),
             icon = "icons/info.svg"
         ) {
-            modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 7)) {
-                AboutDialog {
-                    modalController.popBackStack(null)
-                }
+            showInfoDialog = true
+        }
+    }
+
+    BaseDialog(
+        expanded = showSyncDialog
+    ) {
+        SearchAudioDialog(
+            onFinished = {
+                showSyncDialog = false
+                Global.Data.refreshAudioList()
+                Global.Data.setData(false, reFilter = true)
+            },
+            onClose = {
+                showSyncDialog = false
             }
+        )
+    }
+
+    BaseDialog(
+        expanded = showInfoDialog,
+        onDismissRequest = {
+            showInfoDialog = false
+        }
+    ) {
+        AboutDialog {
+            showInfoDialog = false
         }
     }
 }
@@ -272,7 +321,8 @@ private fun DrawerItem(
 ) {
 
     val animateFraction = animateFloatAsState(if (expandedItem == name) 1f else 0f)
-    val expandBackColor = androidx.compose.ui.graphics.lerp(Color.Transparent, ColorBox.primary.copy(0.05f), animateFraction.value)
+    val expandBackColor =
+        androidx.compose.ui.graphics.lerp(Color.Transparent, ColorBox.primary.copy(0.05f), animateFraction.value)
 
     val isSelected = content.any { it.type == Global.Data.currentFolder.value.type && it.path == Global.Data.currentFolder.value.path }
 
@@ -317,20 +367,10 @@ private fun DrawerItem(
             visible = expandedItem == name
         ) {
 
-            val modalController = LocalRootController.current.findModalController()
-
             Column(Modifier.fillMaxWidth()) {
                 if (name == "Playlists") {
                     Row(Modifier.fillMaxWidth().height(44.dp).clickable {
-                        modalController.present(AlertConfiguration(cornerRadius = 7, alpha = 0.6f)) {
-                            CreatePlaylistDialog(
-                                modalController,
-                                ModelPlaylist(),
-                                callback = {
-
-                                }
-                            )
-                        }
+                        //create playlist
                     }, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
                         Icon(
                             modifier = Modifier.size(20.dp),

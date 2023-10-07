@@ -34,10 +34,8 @@ import core.CorePlayer
 import core.db.CoreDB
 import core.db.models.ModelAudio
 import routing.dialogs.AudioInfoDialog
+import routing.dialogs.BaseDialog
 import routing.dialogs.EditTagsDialog
-import ru.alexgladkov.odyssey.compose.extensions.present
-import ru.alexgladkov.odyssey.compose.local.LocalRootController
-import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
 import theme.ColorBox
 import utils.Global
 import utils.Tools.formatToDuration
@@ -51,9 +49,11 @@ fun AudioListSection(
     playingMediaItem: ModelAudio
 ) {
 
-    val modalController = LocalRootController.current.findModalController()
     var showListPopup by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf(ModelAudio()) }
+
+    var showEditDialog by remember { mutableStateOf(false) }
+    var showInfoDialog by remember { mutableStateOf(false) }
 
     if (Global.Data.filteredAudioList.isEmpty()) {
         Column(
@@ -112,35 +112,49 @@ fun AudioListSection(
             }
             2 -> {
                 //edit
-                modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
-                    EditTagsDialog(
-                        modelAudio = selectedItem.copy(),
-                        closeClicked = {
-                            modalController.popBackStack(null)
-                        },
-                        onEdited = { editedAudio ->
-                            if (playingMediaItem.id == editedAudio.id) {
-                                val currentPos = CorePlayer.progressCallback.value
-                                CorePlayer.currentMediaItemCallback.value = editedAudio
-                                CorePlayer.startPlay(editedAudio, from = currentPos)
-                            }
-                            Global.Data.editedAudio(editedAudio)
-                            modalController.popBackStack(null)
-                        }
-                    )
-                }
+                showEditDialog = true
             }
-
             3 -> {
                 //info
-                modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
-                    AudioInfoDialog(selectedItem) {
-                        modalController.popBackStack(null)
-                    }
-                }
+                showInfoDialog = true
             }
         }
     }
+
+    BaseDialog(
+        expanded = showEditDialog,
+        onDismissRequest = {
+            showEditDialog = false
+        }
+    ) {
+        EditTagsDialog(
+            modelAudio = selectedItem.copy(),
+            closeClicked = {
+                showEditDialog = false
+            },
+            onEdited = { editedAudio ->
+                if (playingMediaItem.id == editedAudio.id) {
+                    val currentPos = CorePlayer.progressCallback.value
+                    CorePlayer.currentMediaItemCallback.value = editedAudio
+                    CorePlayer.startPlay(editedAudio, from = currentPos)
+                }
+                Global.Data.editedAudio(editedAudio)
+                showEditDialog = false
+            }
+        )
+    }
+
+    BaseDialog(
+        expanded = showInfoDialog,
+        onDismissRequest = {
+            showInfoDialog = false
+        }
+    ) {
+        AudioInfoDialog(selectedItem) {
+            showInfoDialog = false
+        }
+    }
+
 }
 
 @Composable

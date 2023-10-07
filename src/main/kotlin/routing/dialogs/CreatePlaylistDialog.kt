@@ -16,12 +16,10 @@ import androidx.compose.ui.unit.sp
 import components.CustomTextField
 import components.MyIconButton
 import core.db.models.ModelPlaylist
-import ru.alexgladkov.odyssey.compose.controllers.ModalController
 import theme.ColorBox
 
 @Composable
 fun CreatePlaylistDialog(
-    modalController: ModalController,
     modelPlaylist: ModelPlaylist,
     callback : (ModelPlaylist) -> Unit
 ) {
@@ -43,7 +41,7 @@ fun CreatePlaylistDialog(
                 colorFilter = ColorBox.text.copy(0.6f),
                 icon = "icons/close.svg",
                 onClick = {
-                    modalController.popBackStack(null)
+
                 }
             )
             Text(
