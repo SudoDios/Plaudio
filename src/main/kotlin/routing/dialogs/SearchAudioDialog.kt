@@ -23,15 +23,16 @@ import components.MyIconButton
 import components.SSDScanAnimation
 import core.db.models.ModelAudio
 import core.extractor.AudioStore
+import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import theme.ColorBox
 import utils.Global
 import utils.Prefs
 
 @Composable
-fun SearchAudioDialog(
-    onFinished: () -> Unit,
-    onClose : () -> Unit
-) {
+fun SearchAudioDialog(onFinished: () -> Unit) {
+
+    val rootController = LocalRootController.current
+    val modalController = rootController.findModalController()
 
     var folderCount by remember { mutableStateOf(0) }
     var audioCount by remember { mutableStateOf(0) }
@@ -75,7 +76,7 @@ fun SearchAudioDialog(
                 icon = "icons/close.svg",
                 onClick = {
                     if (!isSearching) {
-                        onClose.invoke()
+                        modalController.popBackStack(null)
                     }
                 }
             )

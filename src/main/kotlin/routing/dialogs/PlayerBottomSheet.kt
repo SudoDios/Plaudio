@@ -28,6 +28,9 @@ import components.menu.SpeedPlaybackPopup
 import core.CorePlayer
 import core.db.CoreDB
 import dev.icerock.moko.mvvm.livedata.compose.observeAsState
+import ru.alexgladkov.odyssey.compose.extensions.present
+import ru.alexgladkov.odyssey.compose.local.LocalRootController
+import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
 import theme.ColorBox
 import utils.Global
 import utils.Prefs
@@ -135,6 +138,7 @@ private fun Content (
     speedClicked: () -> Unit
 ) {
 
+    val modalController = LocalRootController.current.findModalController()
     val repeatModeChange = Prefs.repeatModeChanged.observeAsState()
 
     val isMute = CorePlayer.isMutedCallback.observeAsState()
@@ -145,8 +149,6 @@ private fun Content (
     val isEqEnable = CorePlayer.isEqEnableCallback.observeAsState()
 
     var backgroundImageHeight by remember { mutableStateOf(0) }
-
-    var showEqualizer by remember { mutableStateOf(false) }
 
     SmoothImage(
         modifier = Modifier.fillMaxWidth().height(backgroundImageHeight.dp).blur(20.dp).alpha(0.6f),
@@ -308,7 +310,11 @@ private fun Content (
                     icon = "icons/equalizer.svg",
                     colorFilter = ColorBox.text.copy(0.8f),
                     onClick = {
-                        showEqualizer = true
+                        modalController.present(AlertConfiguration(alpha = 0.6f, cornerRadius = 6)) {
+                            EqualizerDialog {
+                                modalController.popBackStack(null)
+                            }
+                        }
                     }
                 )
                 this@Row.AnimatedVisibility(
@@ -333,18 +339,6 @@ private fun Content (
                     }
                 }
             )
-        }
-    }
-
-
-    BaseDialog(
-        expanded = showEqualizer,
-        onDismissRequest = {
-            showEqualizer = false
-        }
-    ) {
-        EqualizerDialog {
-            showEqualizer = false
         }
     }
 }

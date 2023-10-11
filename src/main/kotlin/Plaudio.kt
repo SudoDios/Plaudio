@@ -1,5 +1,6 @@
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -7,18 +8,14 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import core.CorePlayer
 import core.db.CoreDB
-import core.youtube.Proxy
-import moe.tlaster.precompose.PreComposeWindow
-import moe.tlaster.precompose.navigation.NavHost
-import moe.tlaster.precompose.navigation.rememberNavigator
-import moe.tlaster.precompose.navigation.transition.NavTransition
-import routing.Routes
-import routing.ScreenHome
-import routing.ScreenSplash
+import routing.routingGraph
+import ru.alexgladkov.odyssey.compose.setup.OdysseyConfiguration
+import ru.alexgladkov.odyssey.compose.setup.setNavigationContent
 import theme.ColorBox
 import theme.Fonts
 import utils.Global
@@ -39,9 +36,7 @@ fun App() {
     File(Global.dbPath).mkdirs()
     CoreDB.init()
     CorePlayer.init()
-    Proxy.init()
 
-    val navigator = rememberNavigator()
 
     MaterialTheme(
         typography = Fonts.typography,
@@ -51,23 +46,10 @@ fun App() {
             primary = ColorBox.primary
         )
     ) {
-        NavHost(
-            navigator = navigator,
-            navTransition = NavTransition(),
-            initialRoute = Routes.SPLASH,
-        ) {
-            scene(
-                route = Routes.SPLASH,
-                navTransition = NavTransition(),
-            ) {
-                ScreenSplash(navigator)
-            }
-            scene(
-                route = Routes.HOME,
-                navTransition = NavTransition(),
-            ) {
-                ScreenHome()
-            }
+        setNavigationContent(
+            OdysseyConfiguration(backgroundColor = if (Prefs.isDarkMode) Color.Black else Color.White),
+            onApplicationFinish = {}) {
+            routingGraph()
         }
     }
 
@@ -76,7 +58,7 @@ fun App() {
 
 
 fun main() = application {
-    PreComposeWindow(
+    Window(
         icon = painterResource("icons/app_icon.png"),
         onCloseRequest = ::exitApplication,
         title = "Plaudio",
@@ -91,36 +73,36 @@ fun main() = application {
                         } else {
                             CorePlayer.play()
                         }
-                        return@PreComposeWindow true
+                        return@Window true
                     }
 
                     (it.key == Key.DirectionRight && it.type == KeyEventType.KeyUp) -> {
                         CorePlayer.forward(15000)
-                        return@PreComposeWindow true
+                        return@Window true
                     }
 
                     (it.key == Key.DirectionLeft && it.type == KeyEventType.KeyUp) -> {
                         CorePlayer.backward(10000)
-                        return@PreComposeWindow true
+                        return@Window true
                     }
 
                     (it.key == Key.DirectionUp && it.type == KeyEventType.KeyUp) -> {
                         CorePlayer.incVolume()
-                        return@PreComposeWindow true
+                        return@Window true
                     }
 
                     (it.key == Key.DirectionDown && it.type == KeyEventType.KeyUp) -> {
                         CorePlayer.decVolume()
-                        return@PreComposeWindow true
+                        return@Window true
                     }
                 }
             } else {
-                return@PreComposeWindow false
+                return@Window false
             }
             false
         }
     ) {
-        window.minimumSize = Dimension(510, 680)
+        window.minimumSize = Dimension(510, 670)
         App()
     }
 }

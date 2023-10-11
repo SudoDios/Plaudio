@@ -16,7 +16,7 @@ fun SmoothImage(
     image : String?,
     fadeOnChange : Boolean = false,
     placeHolder : String? = "icons/audio-square.svg",
-    contentScale: ContentScale
+    contentScale: ContentScale = ContentScale.Crop
 ) {
 
     if (fadeOnChange) {

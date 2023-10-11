@@ -24,6 +24,7 @@ import components.*
 import components.menu.RepeatModePopup
 import core.CorePlayer
 import dev.icerock.moko.mvvm.livedata.compose.observeAsState
+import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import theme.ColorBox
 import utils.Global
 import utils.Prefs
@@ -37,11 +38,13 @@ fun BoxWithConstraintsScope.CompactPlayer(
     onForceHide : () -> Unit
 ) {
 
+    val modalController = LocalRootController.current.findModalController()
+
     val visible = CorePlayer.visiblePlayer.observeAsState()
     var showRepeatPopup by remember { mutableStateOf(false) }
     val repeatModeChange = Prefs.repeatModeChanged.observeAsState()
 
-    if (!visible.value) onForceHide.invoke()
+    if (!visible.value) modalController.popBackStack(null)
     if (maxWidth.value.toInt() > Global.SIZE_NORMAL) onForceHide.invoke()
 
     RepeatModePopup(

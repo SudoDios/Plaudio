@@ -14,6 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
@@ -29,7 +31,7 @@ fun MyIconButton(
     background : Color = Color.Transparent,
     padding : PaddingValues = PaddingValues(0.dp),
     contentPadding : Dp = 12.dp,
-    colorFilter : Color = ColorBox.text,
+    colorFilter : Color = ColorBox.text.copy(0.8f),
     onClick: () -> Unit,
 ) {
     Box(
@@ -38,6 +40,7 @@ fun MyIconButton(
             .rotate(rotate)
             .clip(RoundedCornerShape(50))
             .background(background)
+            .pointerHoverIcon(icon = if (enabled) PointerIcon.Hand else PointerIcon.Default)
             .clickable(
                 onClick = onClick,
                 enabled = enabled,
