@@ -31,8 +31,9 @@ import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
 import theme.ColorBox
+import utils.FileUtils
+import utils.FileUtils.md5
 import utils.Tools
-import utils.Tools.md5
 import java.io.File
 
 @Composable
@@ -82,7 +83,7 @@ fun EditTagsDialog(
                         if (isChangedCover) {
                             audioFile.tag.deleteArtworkField()
                             audioFile.tag.setField(ArtworkFactory.createArtworkFromFile(File(cover!!)))
-                            cover = Tools.writeThumbImage(File(cover!!).readBytes(),cover!!.substringAfterLast("."))
+                            cover = FileUtils.writeThumbImage(File(cover!!).readBytes(),cover!!.substringAfterLast("."))
                         }
                         audioFile.tag.setField(FieldKey.TITLE,title)
                         audioFile.tag.setField(FieldKey.ARTIST,artist)

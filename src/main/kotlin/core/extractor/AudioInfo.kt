@@ -3,7 +3,7 @@ package core.extractor
 import core.db.models.ModelAudio
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.tag.FieldKey
-import utils.Tools
+import utils.FileUtils
 import java.io.File
 import java.util.concurrent.TimeUnit
 
@@ -18,7 +18,7 @@ object AudioInfo {
             modelAudio.album = audioFile.tag.getFirst(FieldKey.ALBUM).artistNameFix()
             if (audioFile.tag.firstArtwork != null) {
                 val mime = audioFile.tag.firstArtwork.mimeType
-                modelAudio.coverArt = Tools.writeThumbImage(audioFile.tag.firstArtwork.binaryData,mime)
+                modelAudio.coverArt = FileUtils.writeThumbImage(audioFile.tag.firstArtwork.binaryData,mime)
             }
             modelAudio.path = file.absolutePath
             modelAudio.size = file.length()

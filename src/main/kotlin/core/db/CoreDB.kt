@@ -15,6 +15,7 @@ object CoreDB {
     //config
     fun init () {
         val dbFile = "${Global.dbPath}/plaudio.db"
+        Class.forName("org.sqlite.JDBC");
         connection = DriverManager.getConnection("jdbc:sqlite:$dbFile")
         createTables()
     }

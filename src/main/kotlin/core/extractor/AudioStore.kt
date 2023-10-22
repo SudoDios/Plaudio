@@ -5,8 +5,8 @@ import core.db.models.ModelAudio
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import utils.FileUtils.md5
 import utils.Global
-import utils.Tools.md5
 import java.io.File
 import java.io.IOException
 import java.nio.file.*
