@@ -76,7 +76,7 @@ object Package {
         val isMac: Boolean
             get() = OS.contains("mac")
         val isUnix: Boolean
-            get() = OS.contains("nix") || OS.contains("nux") || OS.contains("aix")
+            get() = OS.contains("nix") || OS.contains("nux") || OS.contains("freebsd")
 
     }
 
