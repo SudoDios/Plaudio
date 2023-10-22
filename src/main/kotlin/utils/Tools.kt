@@ -3,12 +3,9 @@ package utils
 import androidx.compose.ui.awt.ComposeDialog
 import java.awt.FileDialog
 import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
 import java.io.IOException
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.security.MessageDigest
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
@@ -108,21 +105,6 @@ object Tools {
         }
     }
 
-    fun File.md5() : String {
-        val md = MessageDigest.getInstance("MD5")
-        val result = this.inputStream().use { fis ->
-            val buffer = ByteArray(8192)
-            generateSequence {
-                when (val bytesRead = fis.read(buffer)) {
-                    -1 -> null
-                    else -> bytesRead
-                }
-            }.forEach { bytesRead -> md.update(buffer, 0, bytesRead) }
-            md.digest().joinToString("") { "%02x".format(it) }
-        }
-        return result
-    }
-
     fun openFilePicker (title : String = "Choice an image",vararg filterFormats: String) : File? {
         val fileGet = FileDialog(ComposeDialog(),title, FileDialog.LOAD)
         fileGet.setFilenameFilter { _, name -> filterFormats.contains(name.substringAfterLast(".")) }
@@ -133,20 +115,6 @@ object Tools {
             null
         } else {
             fileGet.files[0]
-        }
-    }
-
-    fun writeThumbImage(array: ByteArray,mimeType : String) : String? {
-        val mime = if (mimeType.contains("/")) mimeType.substringAfterLast("/") else mimeType
-        val fileSave = File("${Global.coverPaths}/${getRandomString()}.$mime")
-        fileSave.createNewFile()
-        return try {
-            val stream = FileOutputStream(fileSave.absolutePath)
-            stream.write(array)
-            fileSave.absolutePath
-        } catch (e: FileNotFoundException) {
-            e.printStackTrace()
-            null
         }
     }
 
