@@ -14,9 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import core.CorePlayer
@@ -28,6 +29,8 @@ import routing.dialogs.SetupDialog
 import ru.alexgladkov.odyssey.compose.extensions.present
 import ru.alexgladkov.odyssey.compose.local.LocalRootController
 import ru.alexgladkov.odyssey.compose.navigation.modal_navigation.AlertConfiguration
+import theme.ColorBox
+import theme.Fonts
 import utils.Package
 import utils.Tools
 
@@ -88,42 +91,36 @@ fun ScreenSplash() {
         }
     }
 
-    Image(
-        modifier = Modifier.fillMaxSize().blur(16.dp),
-        painter = painterResource("images/splash-background.jpg"),
-        contentDescription = null,
-        contentScale = ContentScale.Crop
-    )
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Box(Modifier.clip(RoundedCornerShape(50)).background(Color.White.copy(0.3f))) {
-            Icon(
-                modifier = Modifier.padding(16.dp).size(110.dp),
-                painter = painterResource("icons/app_icon.svg"),
-                contentDescription = null,
-                tint = Color.White
-            )
-        }
-        AnimatedVisibility(
-            modifier = Modifier.padding(top = 20.dp),
-            visible = audioCount == 0
+    Box(Modifier.fillMaxSize().background(ColorBox.primaryDark)) {
+        Image(
+            modifier = Modifier.fillMaxSize().blur(12.dp),
+            painter = painterResource("images/splash-background.png"),
+            contentDescription = null,
+            contentScale = ContentScale.Crop
+        )
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "Welcome to Plaudio",
-                    fontSize = 18.sp,
-                    color = Color.White
+            Box(Modifier.clip(RoundedCornerShape(50)).background(ColorBox.primary.copy(0.3f))) {
+                Icon(
+                    modifier = Modifier.padding(16.dp).size(110.dp),
+                    painter = painterResource("icons/app_icon.svg"),
+                    contentDescription = null,
+                    tint = ColorBox.primary
                 )
+            }
+            AnimatedVisibility(
+                modifier = Modifier.padding(top = 20.dp),
+                visible = audioCount == 0
+            ) {
                 Row(
                     modifier = Modifier
                         .padding(top = 20.dp)
                         .height(48.dp)
                         .clip(RoundedCornerShape(50))
-                        .background(Color.White.copy(0.1f))
+                        .background(ColorBox.primary.copy(0.1f))
                         .clickable {
                             modalController.present(
                                 AlertConfiguration(
@@ -147,17 +144,29 @@ fun ScreenSplash() {
                         modifier = Modifier.padding(start = 12.dp).size(20.dp),
                         painter = painterResource("icons/search-normal.svg"),
                         contentDescription = null,
-                        tint = Color.White.copy(0.8f)
+                        tint = ColorBox.text.copy(0.8f)
                     )
                     Text(
                         modifier = Modifier.padding(start = 12.dp, end = 16.dp),
                         text = "Open Sync Settings",
-                        color = Color.White.copy(0.9f),
+                        color = ColorBox.text.copy(0.9f),
                         fontSize = 13.sp
                     )
                 }
             }
         }
+        Text(
+            modifier = Modifier.padding(bottom = 25.dp).align(Alignment.BottomCenter),
+            text = "Plaudio",
+            style = TextStyle.Default.copy(
+                fontFamily = Fonts.varela,
+                color = ColorBox.text,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                letterSpacing = 3.sp
+            )
+        )
     }
+
 
 }
