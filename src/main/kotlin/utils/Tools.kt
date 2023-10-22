@@ -11,6 +11,7 @@ import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import javax.swing.SwingUtilities
 import kotlin.math.log10
 import kotlin.math.pow
 
@@ -74,7 +75,9 @@ object Tools {
     fun postDelayed (delay : Long,callback : () -> Unit) {
         Timer().schedule(object : TimerTask() {
             override fun run() {
-                callback.invoke()
+                SwingUtilities.invokeLater {
+                    callback.invoke()
+                }
             }
         },delay)
     }

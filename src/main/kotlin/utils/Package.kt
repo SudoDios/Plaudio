@@ -12,10 +12,12 @@ import java.util.*
 
 object Package {
 
+    var vlcVersion : String = ""
+
     fun isLibvlcInstalled () : Boolean {
         Native.unregister(LibVlc::class.java)
         return try {
-            LibVlcVersion().version
+            vlcVersion = LibVlcVersion().version.version()
             true
         } catch (e : UnsatisfiedLinkError) {
             false

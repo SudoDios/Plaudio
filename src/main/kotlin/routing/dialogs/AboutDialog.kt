@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import components.MyIconButton
 import org.jetbrains.skiko.Cursor
 import theme.ColorBox
+import utils.Package
 
 @Composable
 fun AboutDialog(
@@ -78,6 +79,13 @@ fun AboutDialog(
             fontSize = 13.sp,
             textAlign = TextAlign.Center,
             color = ColorBox.text.copy(0.8f)
+        )
+        Text(
+            modifier = Modifier.padding(top = 12.dp, start = 16.dp, end = 16.dp),
+            text = "Based on LibVLC (version ${Package.vlcVersion})",
+            fontSize = 11.sp,
+            textAlign = TextAlign.Center,
+            color = ColorBox.text.copy(0.7f)
         )
         Row(
             modifier = Modifier.padding(top = 12.dp),
