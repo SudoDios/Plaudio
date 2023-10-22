@@ -24,6 +24,9 @@ object Global {
     val dbPath : String get() = "$userHome/.plaudio/db"
     val prefsPath : String get() = "$userHome/.plaudio/prefs"
     val convertPath : String get() = "$userHome/.plaudio/conv"
+    val libVLCDir : String get() = "$userHome/.plaudio/.lvlc"
+
+    val requestCloseWindow = EventLiveData(false)
 
     object Data {
 
