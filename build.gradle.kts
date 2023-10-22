@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
     implementation(compose.desktop.currentOs)
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 
     implementation("dev.icerock.moko:mvvm-livedata-compose:0.16.1")
     implementation("io.github.alexgladkov:odyssey-core:1.3.20")
@@ -25,7 +26,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("uk.co.caprica:vlcj:4.8.2")
 
-    implementation("org.xerial:sqlite-jdbc:3.43.0.0")
+    implementation("org.slf4j:slf4j-log4j12:2.0.9")
 }
 
 compose.desktop {
