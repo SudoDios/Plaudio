@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import com.sun.jna.NativeLibrary
 import core.CorePlayer
 import core.db.CoreDB
 import routing.routingGraph
@@ -18,6 +19,7 @@ import ru.alexgladkov.odyssey.compose.setup.OdysseyConfiguration
 import ru.alexgladkov.odyssey.compose.setup.setNavigationContent
 import theme.ColorBox
 import theme.Fonts
+import uk.co.caprica.vlcj.binding.support.runtime.RuntimeUtil
 import utils.Global
 import utils.Prefs
 import java.awt.Dimension
@@ -28,6 +30,7 @@ import java.util.logging.LogManager
 fun App() {
     //init
     System.setProperty("java.util.prefs.userRoot",Global.prefsPath)
+    NativeLibrary.addSearchPath(RuntimeUtil.getLibVlcLibraryName(),Global.libVLCDir)
     if (!Prefs.isFirstInitialized) {
         File(Global.coverPaths).deleteRecursively()
         File(Global.dbPath).deleteRecursively()
@@ -35,8 +38,6 @@ fun App() {
     File(Global.coverPaths).mkdirs()
     File(Global.dbPath).mkdirs()
     CoreDB.init()
-    CorePlayer.init()
-
 
     MaterialTheme(
         typography = Fonts.typography,
@@ -58,6 +59,9 @@ fun App() {
 
 
 fun main() = application {
+    Global.requestCloseWindow.addObserver {
+        exitApplication()
+    }
     Window(
         icon = painterResource("icons/app_icon.png"),
         onCloseRequest = ::exitApplication,
