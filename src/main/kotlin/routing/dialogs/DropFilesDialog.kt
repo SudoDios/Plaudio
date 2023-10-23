@@ -118,7 +118,7 @@ fun DropFilesDialog(
                     onDragState.invoke(Global.DragState.DROPPED)
                     if (dropData.dragData is DragData.FilesList) {
                         droppedList = (dropData.dragData as DragData.FilesList).readFiles()
-                            .map { URLDecoder.decode(it.split(":")[1], "UTF-8") }
+                            .map { URLDecoder.decode(it.replace("file:",""), "UTF-8") }
                     }
                 }
             ),
