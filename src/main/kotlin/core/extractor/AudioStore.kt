@@ -17,7 +17,7 @@ import kotlin.io.path.name
 
 object AudioStore {
 
-    private val supportedFormats = arrayListOf("mp3","m4a","ogg","wav","flac")
+    val supportedFormats = arrayListOf("mp3","m4a","ogg","wav","flac")
     private val arrayFind = ArrayList<ModelAudio>()
     lateinit var callback: Callback
 
