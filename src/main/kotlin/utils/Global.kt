@@ -28,6 +28,12 @@ object Global {
 
     val requestCloseWindow = EventLiveData(false)
 
+    enum class DragState {
+        DRAG_ENTER,
+        DRAG_EXIT,
+        DROPPED
+    }
+
     object Data {
 
         var hasAnyTextFieldFocus = false

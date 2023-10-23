@@ -188,6 +188,12 @@ object CoreDB {
             }
         }
 
+        fun checkAudioExist (hash : String) : Int {
+            val statement = connection.createStatement()
+            val query = statement.executeQuery("SELECT id AS audioId FROM audios WHERE hash='$hash'")
+            return query.getInt("audioId")
+        }
+
         fun count () : Int {
             val statement = connection.createStatement()
             val query = statement.executeQuery("SELECT COUNT(*) AS countAudios FROM audios")

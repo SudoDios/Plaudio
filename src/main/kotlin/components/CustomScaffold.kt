@@ -24,6 +24,7 @@ import theme.ColorBox
 
 @Composable
 fun CustomScaffold(
+    modifier: Modifier,
     drawerState: CustomOcState,
     sheetState: CustomOcState,
     scope: CoroutineScope,
@@ -33,7 +34,7 @@ fun CustomScaffold(
     sheetContent: @Composable BoxScope.() -> Unit
 ) {
 
-    BoxWithConstraints(modifier = Modifier.fillMaxSize().background(ColorBox.primaryDark)) {
+    BoxWithConstraints(modifier = modifier) {
         BoxWithConstraints(Modifier.fillMaxSize(), content = mainContent)
         DrawerLayout(scope, drawerState, drawerBackgroundColor, drawerContent)
         SheetLayout(scope, sheetState, ColorBox.primaryDark2, sheetContent)
