@@ -24,7 +24,7 @@ object AudioInfo {
             modelAudio.size = file.length()
             modelAudio.folder = file.parentFile.absolutePath
             modelAudio.duration = TimeUnit.SECONDS.toMillis(audioFile.audioHeader.trackLength.toLong())
-            modelAudio.format = file.name.substringAfterLast(".").lowercase()
+            modelAudio.format = file.extension
             return modelAudio
         } catch (_ : Exception) {
             return null
