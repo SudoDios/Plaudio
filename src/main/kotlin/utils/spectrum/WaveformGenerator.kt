@@ -3,6 +3,7 @@ package utils.spectrum
 import core.db.CoreDB
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import utils.Global
 import utils.Tools
@@ -15,9 +16,13 @@ import kotlin.math.abs
 object WaveformGenerator {
 
     private const val BUFFER_SIZE = 4096
+    private lateinit var threadScope: Job
 
     fun generate (path : String,hash : String,callback : (FloatArray) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
+        if (this::threadScope.isInitialized && threadScope.isActive) {
+            threadScope.cancel()
+        }
+        threadScope = CoroutineScope(Dispatchers.IO).launch {
             File(Global.convertPath).deleteRecursively()
             File(Global.convertPath).mkdirs()
             val localWave = CoreDB.Waveforms.getWaveform(hash)
