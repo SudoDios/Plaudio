@@ -59,7 +59,8 @@ fun ExceptionDialog(
             }, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Close App"
+                text = "Close App",
+                color = ColorBox.primary
             )
         }
     }
