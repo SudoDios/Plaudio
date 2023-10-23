@@ -36,7 +36,7 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb,TargetFormat.Exe)
             modules("java.sql")
             packageName = "Plaudio"
-            packageVersion = "1.4.0"
+            packageVersion = "1.5.0"
             val iconsRoot = project.file("src/main/resources")
             linux {
                 iconFile.set(iconsRoot.resolve("icons/app_icon.png"))
