@@ -42,7 +42,7 @@
 > 
 > Tested on : `Ubuntu 18-20 & Windows 10-11`
 > 
-> Note : `currently, it does not support 32x and macOS versions (But you can help in this way to make it complete)`
+> Note : `currently, it does not support 32x and macOS versions (But you can help in this way to make it complete)` See [this](https://github.com/SudoDios/Plaudio/issues/3)
 
 ### 🔧 Build
 
