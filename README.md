@@ -40,9 +40,9 @@
 >     - Linux x64 (**AppImage** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.5.0/Plaudio-1.5.0-x86_64.AppImage)
 >     - Windows x64 (**EXE** installer) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.5.0/plaudio_1.5.0_installer_win_x64.exe)
 > 
-> `Tested on Ubuntu 18-20 & Windows 10-11`
+> Tested on : `Ubuntu 18-20 & Windows 10-11`
 > 
-> note : `currently, it does not support 32x and macOS versions (But you can help in this way to make it complete)`
+> Note : `currently, it does not support 32x and macOS versions (But you can help in this way to make it complete)`
 
 ### 🔧 Build
 
