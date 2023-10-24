@@ -31,18 +31,18 @@
 ### 📥 Installation
 
 > 1. Plaudio need to install **LibVLC** on your system
->    - on Linux : `sudo apt install vlc`
->    - on windows : 
->      - download vlc win from [this](https://mirror.rasanegar.com/videolan/vlc/3.0.18/win64/vlc-3.0.18-win64.exe)
->      - install downloaded vlc exe file
+>    - on version 1.5.0 plaudio use bundled libvlc (WIP)
+>      - that means you don't need to install libvlc
+>      - this is work in windows 64x & linux 64x
 > 
 > 2. Download Plaudio
->     - Debian based linux (**DEB** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.4.0/plaudio_1.4.0_amd64.deb)
->     - Linux (**AppImage** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.4.0/plaudio_1.4.0_x86_64.AppImage)
->     - Windows (**EXE** installer) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.4.0/plaudio_1.4.0_installer_win.exe)
+>     - Debian based linux x64 (**DEB** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.5.0/plaudio_1.5.0_amd64.deb)
+>     - Linux x64 (**AppImage** file) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.5.0/Plaudio-1.5.0-x86_64.AppImage)
+>     - Windows x64 (**EXE** installer) [Download](https://github.com/SudoDios/Plaudio/releases/download/1.5.0/plaudio_1.5.0_installer_win_x64.exe)
 > 
 > `Tested on Ubuntu 18-20 & Windows 10-11`
->
+> 
+> note : `currently, it does not support 32x and macOS versions (But you can help in this way to make it complete)`
 
 ### 🔧 Build
 
@@ -66,7 +66,8 @@
 > - [x] Make resizable window
 > - [ ] Playlist feature
 > - [x] Light Theme
-> - [ ] YouTube music downloader
+> - [x] Drag & Drop Audio Files
+> - [x] Bundled libvlc (WIP)
 
 ### 📚 Libraries
 
