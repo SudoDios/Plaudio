@@ -1,3 +1,5 @@
+## This Project is Deprecated. Use [Orange Player](https://github.com/SudoDios/OrangePlayer) instead of this
+
 <p align="center">
 <img width="70%" src="assets/banner.png" alt=""/>
 </p>
